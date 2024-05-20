@@ -12,45 +12,28 @@
 		}
 	},
 	"pages": [
-		{
-			"path": "pages/tabBar/Setting/Setting",
-			"style": {
-				"navigationBarTitleText": "设置",
-				"app-plus": {
-					"bounce": "vertical",
-					"titleNView": {
-						"buttons": [{
-							"text": "\ue534",
-							"fontSrc": "/static/uni.ttf",
-							"fontSize": "22px",
-							"color": "#FFFFFF"
-						}]
-					}
-				}
-			}
-		},
 		// pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		{
-			"path": "pages/tabBar/component/component",
-			"style": {
-				"navigationBarTitleText": "内置组件",
-				"app-plus": {
-					"bounce": "vertical",
-					"titleNView": {
-						"buttons": [{
-							"text": "\ue534",
-							"fontSrc": "/static/uni.ttf",
-							"fontSize": "22px",
-							"color": "#FFFFFF"
-						}]
-					}
-				}
-			}
-		},
 		{
 			"path": "pages/tabBar/AddReceive/AddReceive",
 			"style": {
 				"navigationBarTitleText": "新增收料",
+				"app-plus": {
+					"bounce": "vertical",
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue534",
+							"fontSrc": "/static/uni.ttf",
+							"fontSize": "22px",
+							"color": "#FFFFFF"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/addReceive/addMaterial",
+			"style": {
+				"navigationBarTitleText": "钢筋验收小助手",
 				"app-plus": {
 					"bounce": "vertical",
 					"titleNView": {
@@ -82,6 +65,41 @@
 				}
 			}
 		},
+		{
+			"path": "pages/tabBar/Setting/Setting",
+			"style": {
+				"navigationBarTitleText": "设置",
+				"app-plus": {
+					"bounce": "vertical",
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue534",
+							"fontSrc": "/static/uni.ttf",
+							"fontSize": "22px",
+							"color": "#FFFFFF"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabBar/component/component",
+			"style": {
+				"navigationBarTitleText": "内置组件",
+				"app-plus": {
+					"bounce": "vertical",
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue534",
+							"fontSrc": "/static/uni.ttf",
+							"fontSize": "22px",
+							"color": "#FFFFFF"
+						}]
+					}
+				}
+			}
+		},
+	
 		{
 			"path": "pages/tabBar/API/API",
 			"style": {
