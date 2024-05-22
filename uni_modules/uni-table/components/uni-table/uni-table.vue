@@ -10,7 +10,6 @@
       cellpadding="0"
       cellspacing="0"
       :class="{ 'table--stripe': stripe }"
-      :style="{ 'min-width': minWidth + 'px' }"
     >
       <slot></slot>
       <view v-if="noData" class="uni-table-loading">
@@ -106,7 +105,6 @@ export default {
   data() {
     return {
       noData: true,
-      minWidth: 0,
       multiTableHeads: [],
     };
   },

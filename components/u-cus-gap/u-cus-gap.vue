@@ -12,7 +12,7 @@ export default {
       default: 'horizontal',
     },
     size: {
-      type: Number,
+      type: [String, Number],
       default: 24,
     },
   },

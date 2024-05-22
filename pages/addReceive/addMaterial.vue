@@ -103,7 +103,9 @@
         ><button type="warn" @click="handleCancel">取消</button></uni-col
       >
       <uni-col v-show="choosedMaterialList.length" :span="16" :offset="1"
-        ><button type="primary" @click="handleCheck">校验复核</button></uni-col
+        ><button type="primary" @click="handleCheck" hover-class="is-hover">
+          校验复核
+        </button></uni-col
       >
     </uni-row>
     <choose-category
@@ -142,6 +144,10 @@ export default {
        * 选中的称重类型
        */
       weighType: 1,
+      /**
+       * 混装实重总重量
+       */
+      totalWeight: '',
       /**
        * 弹窗显示状态
        */
@@ -230,7 +236,7 @@ export default {
       /**
        * 长度数组
        */
-      lenArr: [6, 9, 13],
+      lenArr: ['6', '9', '13'],
     };
   },
   methods: {
@@ -307,7 +313,7 @@ export default {
      */
     handleCheck() {
       uni.navigateTo({
-        url: '/pages/addReceive/check',
+        url: '/pages/addReceive/checkFirst',
       });
     },
   },
@@ -386,5 +392,13 @@ export default {
 .items-container {
   flex: 1;
   overflow: auto;
+}
+.is-hover {
+  color: rgba(255, 255, 255, 0.6);
+  background-color: #179b16;
+  border-color: #179b16;
+}
+button {
+  font-size: 32rpx;
 }
 </style>
