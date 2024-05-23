@@ -1,6 +1,7 @@
 <template>
   <view class="title"
-    >各规格收货数据<text style="color: red">点选确认</text></view
+    >各规格收货数据<text style="color: red" v-show="!readOnly">点选确认</text
+    ><text v-show="readOnly">确认</text></view
   >
   <view class="card" v-for="dt in materialLists">
     <view class="spec">{{ dt.name }}</view>
@@ -48,6 +49,7 @@
 <script>
 import { v4 as uuidv4 } from 'uuid';
 export default {
+  props: ['readOnly'],
   data() {
     return {
       materialLists: [
@@ -92,7 +94,7 @@ export default {
      * @param type 点击的是哪一列 1：送货单 2：复核结果 3：实点根数
      */
     handleTd(dt, item, type) {
-      console.log(dt, item, type);
+      if (this.readOnly) return;
       this.materialLists = this.materialLists.map((one) => {
         if (one.id === dt.id) {
           return {

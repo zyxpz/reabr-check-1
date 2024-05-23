@@ -166,6 +166,25 @@
       }
     },
     {
+      "path": "pages/receiveRecords/receiveRecordsDetail",
+      "style": {
+        "navigationBarTitleText": "收料详情",
+        "app-plus": {
+          "bounce": "vertical",
+          "titleNView": {
+            "buttons": [
+              {
+                "text": "\ue534",
+                "fontSrc": "/static/uni.ttf",
+                "fontSize": "22px",
+                "color": "#FFFFFF"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
       "path": "pages/tabBar/ReceiveRecords/ReceiveRecords",
       "style": {
         "navigationBarTitleText": "收料记录",

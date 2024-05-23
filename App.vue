@@ -159,6 +159,12 @@ page {
   color: #2979ff;
   cursor: pointer;
 }
+.g-text-a-l {
+  text-align: left;
+}
+.g-text-a-r {
+  text-align: right;
+}
 
 .uni-panel {
   margin-bottom: 12px;
@@ -194,5 +200,6 @@ page {
   color: #333 !important;
   line-height: 30rpx !important;
 }
+
 /** end table 样式复写 */
 </style>

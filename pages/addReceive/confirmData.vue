@@ -2,9 +2,7 @@
   <view class="page">
     <view class="text">请确认实收钢筋数据</view>
     <view class="content">
-      <view class="title">复核模式</view>
-      <view class="des-card">实称 + 实点</view>
-      <finally-weight />
+      <review-type />
       <material-amount-confirm />
     </view>
     <uni-row class="g-flex-aic-jcsb">
@@ -23,10 +21,12 @@
 <script>
 import FinallyWeight from './components/finallyWeight/finallyWeight.vue';
 import MaterialAmountConfirm from './components/materialAmountConfirm/materialAmountConfirm.vue';
+import reviewType from './components/reviewType/reviewType.vue';
 export default {
   components: {
     FinallyWeight,
     MaterialAmountConfirm,
+    reviewType,
   },
   data() {
     return {
@@ -67,20 +67,7 @@ export default {
   font-weight: 500;
   font-size: 32rpx;
 }
-.title {
-  font-size: 28rpx;
-  color: #333;
-  text-align: center;
-  font-weight: 500;
-  margin: 16rpx;
-}
-.des-card {
-  background-color: #fff;
-  padding: 16rpx;
-  margin-bottom: 16rpx;
-  margin: 16rpx;
-  text-align: center;
-}
+
 .card {
   background: #fff;
   padding: 16rpx;
