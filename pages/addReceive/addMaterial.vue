@@ -2,9 +2,15 @@
   <view class="add-material-page">
     <view>
       <view class="text">请根据送货单添加待验收钢筋规格 </view>
-      <button type="primary" @click="visible = true">添加直螺纹钢筋</button>
+      <button v-if="rebarType === '1'" type="primary" @click="visible = true">
+        添加直螺纹钢筋
+      </button>
+      <button v-if="rebarType === '2'" type="primary" @click="visible = true">
+        添加盘螺纹钢筋
+      </button>
       <u-cus-gap size="16" />
       <uni-data-checkbox
+        v-if="rebarType === '1'"
         v-model="weighType"
         :localdata="weighTypeList"
         @change="handleChangeWeighType"
@@ -13,7 +19,7 @@
       <view class="uni-panel">
         <view class="uni-panel-h g-flex-aic-jcsb">
           <view class="g-flex-aic">
-            <view>混装实称总重量</view>
+            <view><text v-show="rebarType === '1'">混装</text>实称总重量</view>
             <uni-easyinput
               class="total-input"
               errorMessage
@@ -36,52 +42,54 @@
         </view>
         <text>送货单数量</text>
         <u-cus-gap size="16" />
-        <view class="item-content-row">
-          <view class="item-content-row-title">单根长度(米)：</view>
-          <view class="g-flex">
-            <uni-tag
-              @click="() => handleLengthTag(text, item.id)"
-              v-for="text in lenArr"
-              :text="text"
-              :key="text"
-              custom-style="background-color: rgb(240 240 240 / 74%);border: solid 1px #eee;color: #000; margin-right: 16rpx;padding: 12rpx 28rpx; font-size: 26rpx "
-            />
+        <view v-if="rebarType === '1'">
+          <view class="item-content-row">
+            <view class="item-content-row-title">单根长度(米)：</view>
+            <view class="g-flex">
+              <uni-tag
+                @click="() => handleLengthTag(text, item.id)"
+                v-for="text in lenArr"
+                :text="text"
+                :key="text"
+                custom-style="background-color: rgb(240 240 240 / 74%);border: solid 1px #eee;color: #000; margin-right: 16rpx;padding: 12rpx 28rpx; font-size: 26rpx "
+              />
+            </view>
+            <view class="length-input">
+              <uni-easyinput
+                errorMessage
+                v-model="item.length"
+                type="number"
+                placeholder="请输入"
+                @input="(e) => changeInput(e, item.id, 'length')"
+              />
+            </view>
           </view>
-          <view class="length-input">
-            <uni-easyinput
-              errorMessage
-              v-model="item.length"
-              type="number"
-              placeholder="请输入"
-              @input="(e) => changeInput(e, item.id, 'length')"
-            />
+          <view class="item-content-row">
+            <view class="item-content-row-title">送货单根数：</view>
+            <view class="other-input">
+              <uni-easyinput
+                errorMessage
+                v-model="item.amount"
+                type="number"
+                placeholder="请输入"
+                @input="(e) => changeInput(e, item.id, 'amount')"
+              />
+            </view>
+            <text>根</text>
           </view>
-        </view>
-        <view class="item-content-row">
-          <view class="item-content-row-title">送货单根数：</view>
-          <view class="other-input">
-            <uni-easyinput
-              errorMessage
-              v-model="item.amount"
-              type="number"
-              placeholder="请输入"
-              @input="(e) => changeInput(e, item.id, 'amount')"
-            />
+          <view v-show="weighType === 1" class="item-content-row">
+            <view class="item-content-row-title">实点根数：</view>
+            <view class="other-input">
+              <uni-easyinput
+                errorMessage
+                v-model="item.actualAmount"
+                type="number"
+                placeholder="请输入"
+                @input="(e) => changeInput(e, item.id, 'actualAmount')"
+              />
+            </view>
+            <text>根</text>
           </view>
-          <text>根</text>
-        </view>
-        <view v-show="weighType === 1" class="item-content-row">
-          <view class="item-content-row-title">实点根数：</view>
-          <view class="other-input">
-            <uni-easyinput
-              errorMessage
-              v-model="item.actualAmount"
-              type="number"
-              placeholder="请输入"
-              @input="(e) => changeInput(e, item.id, 'actualAmount')"
-            />
-          </view>
-          <text>根</text>
         </view>
         <view class="item-content-row">
           <view class="item-content-row-title">送货重量：</view>
@@ -127,6 +135,10 @@ export default {
   },
   data() {
     return {
+      /**
+       * 钢筋类型 1：直螺纹钢筋 2：盘螺纹钢筋
+       */
+      rebarType: '1',
       /**
        * 称重类型
        */
@@ -313,9 +325,15 @@ export default {
      */
     handleCheck() {
       uni.navigateTo({
-        url: '/pages/addReceive/checkFirst',
+        url:
+          this.rebarType === '1'
+            ? '/pages/addReceive/checkFirst'
+            : '/pages/addReceive/checkTrayRebar',
       });
     },
+  },
+  onLoad(options) {
+    this.rebarType = options.rebarType;
   },
 };
 </script>

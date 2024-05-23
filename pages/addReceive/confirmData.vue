@@ -9,9 +9,7 @@
     </view>
     <uni-row class="g-flex-aic-jcsb">
       <uni-col :span="8"
-        ><button type="primary" @click="handleChangeOriginData">
-          上一步
-        </button></uni-col
+        ><button type="primary" @click="handlePrev">上一步</button></uni-col
       >
       <uni-col :span="15"
         ><button type="primary" @click="handleNext">
@@ -35,7 +33,18 @@ export default {
       loading: false,
     };
   },
-  methods: {},
+  methods: {
+    handlePrev() {
+      uni.navigateTo({
+        url: '/pages/addReceive/checkSecond',
+      });
+    },
+    handleNext() {
+      uni.navigateTo({
+        url: '/pages/addReceive/confirmCarInfos',
+      });
+    },
+  },
   mounted() {},
 };
 </script>

@@ -12,44 +12,6 @@
     }
   },
   "pages": [
-    {
-      "path": "pages/addReceive/confirmCarInfos",
-      "style": {
-        "navigationBarTitleText": "确认车辆信息",
-        "app-plus": {
-          "bounce": "vertical",
-          "titleNView": {
-            "buttons": [
-              {
-                "text": "\ue534",
-                "fontSrc": "/static/uni.ttf",
-                "fontSize": "22px",
-                "color": "#FFFFFF"
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "path": "pages/addReceive/confirmData",
-      "style": {
-        "navigationBarTitleText": "确认实收数据",
-        "app-plus": {
-          "bounce": "vertical",
-          "titleNView": {
-            "buttons": [
-              {
-                "text": "\ue534",
-                "fontSrc": "/static/uni.ttf",
-                "fontSize": "22px",
-                "color": "#FFFFFF"
-              }
-            ]
-          }
-        }
-      }
-    },
     // pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
     {
       "path": "pages/tabBar/AddReceive/AddReceive",
@@ -131,6 +93,63 @@
       "path": "pages/addReceive/checkThird",
       "style": {
         "navigationBarTitleText": "校验复核",
+        "app-plus": {
+          "bounce": "vertical",
+          "titleNView": {
+            "buttons": [
+              {
+                "text": "\ue534",
+                "fontSrc": "/static/uni.ttf",
+                "fontSize": "22px",
+                "color": "#FFFFFF"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "pages/addReceive/confirmCarInfos",
+      "style": {
+        "navigationBarTitleText": "确认车辆信息",
+        "app-plus": {
+          "bounce": "vertical",
+          "titleNView": {
+            "buttons": [
+              {
+                "text": "\ue534",
+                "fontSrc": "/static/uni.ttf",
+                "fontSize": "22px",
+                "color": "#FFFFFF"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "pages/addReceive/checkTrayRebar",
+      "style": {
+        "navigationBarTitleText": "盘螺校验复核",
+        "app-plus": {
+          "bounce": "vertical",
+          "titleNView": {
+            "buttons": [
+              {
+                "text": "\ue534",
+                "fontSrc": "/static/uni.ttf",
+                "fontSize": "22px",
+                "color": "#FFFFFF"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "path": "pages/addReceive/confirmData",
+      "style": {
+        "navigationBarTitleText": "确认实收数据",
         "app-plus": {
           "bounce": "vertical",
           "titleNView": {

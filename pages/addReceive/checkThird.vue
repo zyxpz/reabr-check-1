@@ -50,7 +50,7 @@ export default {
      */
     handleNext() {
       uni.navigateTo({
-        url: '/pages/addReceive/checkThird',
+        url: '/pages/addReceive/confirmData',
       });
     },
     /**
