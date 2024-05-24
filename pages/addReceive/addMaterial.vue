@@ -15,7 +15,7 @@
         :localdata="weighTypeList"
         @change="handleChangeWeighType"
       ></uni-data-checkbox>
-      <u-cus-gap />
+      <u-cus-gap size="12" />
       <view class="uni-panel">
         <view class="uni-panel-h g-flex-aic-jcsb">
           <view class="g-flex-aic">
@@ -37,7 +37,7 @@
     <view class="items-container">
       <view v-for="item in choosedMaterialList" class="item">
         <view class="g-flex-aic-jcsb item-header">
-          <text>规格型号</text>
+          <text class="item-sepc">规格型号</text>
           <text class="g-a" @click="() => handleRemove(item.id)">移除</text>
         </view>
         <text>送货单数量</text>
@@ -340,17 +340,18 @@ export default {
 
 <style lang="scss">
 .add-material-page {
-  padding: 24rpx;
+  padding: 16rpx 12rpx;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: calc(100vh - 72px);
+  height: calc(100vh - 32rpx);
 }
 
 .text {
   background-color: #fff;
   padding: 24rpx;
   margin-bottom: 24rpx;
+  font-size: 30rpx;
 }
 
 .input {
@@ -381,18 +382,21 @@ export default {
   align-items: center;
   margin-bottom: 16rpx;
 }
+.item-sepc {
+  font-size: 28rpx;
+}
 
 .item-content-row-title {
   // width: 220rpx
 }
 
 .total-input {
-  width: 130rpx;
+  width: 200rpx !important;
   margin: 0 12rpx;
 }
 
 .uni-easyinput__content-input {
-  height: 30rpx !important;
+  font-size: 28rpx !important;
 }
 
 .length-input {

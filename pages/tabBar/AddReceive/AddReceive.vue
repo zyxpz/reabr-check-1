@@ -72,9 +72,11 @@ export default {
   /* 阴影效果 */
   transition: background-color 0.3s;
   /* 过渡动画 */
+  color: rgb(255, 154, 67);
+  background-color: rgb(255, 249, 234);
 }
 
-.button-style:hover {
+.button-style:active {
   background-color: #fefefe;
   /* 鼠标悬停时的背景颜色 */
   cursor: pointer;

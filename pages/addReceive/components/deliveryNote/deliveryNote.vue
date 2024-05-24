@@ -2,71 +2,59 @@
   <view class="item">
     <text class="title">1、送货单各规格数据自洽检验</text>
     <uni-section title="送货单各规格数据自洽检验(根/支)" type="line" padding>
-      <uni-table
-        ref="table"
-        :loading="loading"
-        border
-        emptyText="暂无数据"
-        minWidth="100"
-      >
+      <uni-table ref="table" :loading="loading" border emptyText="暂无数据">
         <uni-tr>
-          <uni-th width="30%" align="center">规格型号</uni-th>
-          <uni-th width="25%" align="center">送货单根数</uni-th>
-          <uni-th width="25%" align="center">理重复核根数</uni-th>
-          <uni-th width="10%" align="center">差异</uni-th>
-          <uni-th width="10%" align="center">结果</uni-th>
+          <uni-th width="30px" align="center">规格型号</uni-th>
+          <uni-th width="30px" align="center">送货单根数</uni-th>
+          <uni-th width="30px" align="center">理重复核根数</uni-th>
+          <uni-th width="15px" align="center">差异</uni-th>
+          <uni-th width="10px" align="center">结果</uni-th>
         </uni-tr>
         <uni-tr
           v-for="(item, index) in [{ name: 'HRB400φ24', amount: 12 }]"
           :key="index"
         >
           <uni-td align="center"
-            ><view class="td-content">{{ item.name }}</view></uni-td
+            ><view>{{ item.name }}</view></uni-td
           >
           <uni-td align="center">
-            <view class="name">{{ item.amount }}</view>
+            <view>{{ item.amount }}</view>
           </uni-td>
           <uni-td align="center">{{ item.amount1 }}</uni-td>
           <uni-td align="center">
             {{ item.diff }}
           </uni-td>
-          <uni-td align="center">
-            {{ item.diff }}
+          <uni-td align="center" class="td-10vw td-result">
+            <uni-icons type="checkbox-filled" color="#23d923" />
           </uni-td>
         </uni-tr>
       </uni-table>
     </uni-section>
     <uni-section title="重量自洽检验(千克)" type="line" padding>
-      <uni-table
-        ref="table"
-        :loading="loading"
-        border
-        emptyText="暂无数据"
-        minWidth="100"
-      >
+      <uni-table ref="table" :loading="loading" border emptyText="暂无数据">
         <uni-tr>
-          <uni-th width="30%" align="center">规格型号</uni-th>
-          <uni-th width="25%" align="center">送货单重量</uni-th>
-          <uni-th width="25%" align="center">理重复核重量</uni-th>
-          <uni-th width="10%" align="center">差异</uni-th>
-          <uni-th width="10%" align="center">结果</uni-th>
+          <uni-th width="30px" align="center">规格型号</uni-th>
+          <uni-th width="30px" align="center">送货单重量</uni-th>
+          <uni-th width="30px" align="center">理重复核重量</uni-th>
+          <uni-th width="15px" align="center">差异</uni-th>
+          <uni-th width="10px" align="center">结果</uni-th>
         </uni-tr>
         <uni-tr
           v-for="(item, index) in [{ name: 'HRB400φ24', amount: 12 }]"
           :key="index"
         >
           <uni-td align="center"
-            ><view class="td-content">{{ item.name }}</view></uni-td
+            ><view>{{ item.name }}</view></uni-td
           >
           <uni-td align="center">
-            <view class="name">{{ item.amount }}</view>
+            <view>{{ item.amount }}</view>
           </uni-td>
           <uni-td align="center">{{ item.amount1 }}</uni-td>
           <uni-td align="center">
             {{ item.diff }}
           </uni-td>
-          <uni-td align="center">
-            <u-cus-result type="success" size="mini" />
+          <uni-td align="center" class="td-10vw">
+            <uni-icons type="checkbox-filled" color="#23d923" />
           </uni-td>
         </uni-tr>
       </uni-table>
@@ -92,7 +80,7 @@ export default {
 <style lang="scss">
 .title {
   font-weight: 700;
-  font-size: 28rpx;
+  font-size: 32rpx;
   padding: 16rpx;
 }
 .item {
@@ -102,8 +90,10 @@ export default {
 .uni-table-scroll {
   width: calc(100vw - 68rpx);
 }
-.td-content {
-  max-width: 20vw;
+.word-break {
   word-break: break-all;
+}
+.td-result {
+  padding: 0 !important;
 }
 </style>

@@ -9,13 +9,13 @@
       class="table"
     >
       <uni-tr>
-        <uni-th width="30%" align="center">
-          <view class="td-content">实称总重(手动录入)</view></uni-th
+        <uni-th width="30px" align="center">
+          <view class="word-break">实称总重(手动录入)</view></uni-th
         >
-        <uni-th width="25%" align="center">面单总量</uni-th>
-        <uni-th width="25%" align="center">偏差重量</uni-th>
-        <uni-th width="10%" align="center">偏差率</uni-th>
-        <uni-th width="10%" align="center">结果</uni-th>
+        <uni-th width="25px" align="center">面单总量</uni-th>
+        <uni-th width="25px" align="center">偏差重量</uni-th>
+        <uni-th width="15px" align="center">偏差率</uni-th>
+        <uni-th width="10px" align="center">结果</uni-th>
       </uni-tr>
       <uni-tr
         v-for="(item, index) in [{ name: 'HRB400φ24', amount: 12 }]"
@@ -30,7 +30,7 @@
           {{ item.diff }}
         </uni-td>
         <uni-td align="center">
-          {{ item.diff }}
+          <uni-icons type="checkbox-filled" color="#23d923" />
         </uni-td>
       </uni-tr>
     </uni-table>
@@ -40,7 +40,7 @@
       </view>
     </view>
     <u-cus-gap size="16" />
-    <view class="g-flex-aic choose-content">
+    <view class="g-flex choose-content">
       <view>反向复核总重使用：</view>
       <uni-data-checkbox
         v-model="weighType"
@@ -73,7 +73,7 @@ export default {
 <style lang="scss">
 .title {
   font-weight: 700;
-  font-size: 28rpx;
+  font-size: 32rpx;
   padding: 16rpx;
 }
 .item {
@@ -90,8 +90,10 @@ export default {
 .table {
   margin: 24rpx 16rpx;
 }
-.td-content {
-  max-width: 20vw;
+.word-break {
   word-break: break-all;
+}
+.uni-data-checklist .checklist-group {
+  flex-wrap: nowrap !important;
 }
 </style>

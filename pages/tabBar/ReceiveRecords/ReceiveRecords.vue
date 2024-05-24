@@ -43,7 +43,7 @@
                 <image
                   src="/static/copy.svg"
                   class="icon-image"
-                  @click="setClipboard"
+                  @click="() => setClipboard('adfhasldjkfhaskjdhf')"
                 />
               </view>
               <view>
@@ -255,9 +255,9 @@ export default {
     /**
      * 复制
      */
-    setClipboard: function () {
-      var data = this.data;
-      if (data.length === 0) {
+    setClipboard: function (data) {
+      // var data = this.data;
+      if (data?.length === 0) {
         uni.showModal({
           title: '设置剪贴板失败',
           content: '内容不能为空',

@@ -6,7 +6,7 @@
 </template>
 <style lang="scss">
 .title {
-  font-size: 28rpx;
+  font-size: 30rpx;
   color: #333;
   text-align: center;
   font-weight: 500;

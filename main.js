@@ -1,6 +1,5 @@
 import App from './App';
 import store from './store';
-
 // #ifndef VUE3
 import Vue from 'vue';
 
@@ -12,6 +11,8 @@ Vue.prototype.$backgroundAudioData = {
   playTime: 0,
   formatedPlayTime: '00:00:00',
 };
+Vue.config.ignoredElements = [/^uv-/]; // 忽略所有以 'uv-' 开头的元素
+
 App.mpType = 'app';
 const app = new Vue({
   store,

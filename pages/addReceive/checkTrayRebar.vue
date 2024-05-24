@@ -4,13 +4,11 @@
       <view class="title">总重偏差（千克）</view>
       <uni-table ref="table" border emptyText="暂无数据">
         <uni-tr>
-          <uni-th width="30%" align="center">
-            <view class="td-content">实称总重</view></uni-th
-          >
-          <uni-th width="25%" align="center">面单总重</uni-th>
-          <uni-th width="25%" align="center">偏差重量</uni-th>
-          <uni-th width="10%" align="center">偏差率</uni-th>
-          <uni-th width="10%" align="center">结果</uni-th>
+          <uni-th width="30px" align="center"> 实称总重</uni-th>
+          <uni-th width="25px" align="center">面单总重</uni-th>
+          <uni-th width="25px" align="center">偏差重量</uni-th>
+          <uni-th width="10px" align="center">偏差率</uni-th>
+          <uni-th width="10px" align="center">结果</uni-th>
         </uni-tr>
         <uni-tr v-for="(item, index) in dataSource" :key="index">
           <uni-td
@@ -53,15 +51,15 @@
       </view>
     </view>
     <uni-row class="g-flex-aic-jcsb">
-      <uni-col :span="8"
+      <uni-col :span="9"
         ><button type="primary" @click="handleChangeOriginData">
           修改运单数据
         </button></uni-col
       >
-      <uni-col :span="6"
+      <uni-col :span="5"
         ><button type="warn" @click="handleCancel">取消</button></uni-col
       >
-      <uni-col :span="8"
+      <uni-col :span="9"
         ><button type="primary" @click="handleNext">
           确认车辆信息
         </button></uni-col
@@ -129,11 +127,10 @@ export default {
 </script>
 <style>
 .page {
-  padding: 16rpx;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: calc(100vh - 72px);
+  height: calc(100vh - 16rpx);
 }
 .title {
   font-size: 32rpx;

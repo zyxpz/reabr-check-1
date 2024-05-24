@@ -16,20 +16,7 @@
     {
       "path": "pages/tabBar/AddReceive/AddReceive",
       "style": {
-        "navigationBarTitleText": "新增收料",
-        "app-plus": {
-          "bounce": "vertical",
-          "titleNView": {
-            "buttons": [
-              {
-                "text": "\ue534",
-                "fontSrc": "/static/uni.ttf",
-                "fontSize": "22px",
-                "color": "#FFFFFF"
-              }
-            ]
-          }
-        }
+        "navigationBarTitleText": "新增收料"
       }
     },
     {
@@ -54,172 +41,55 @@
     {
       "path": "pages/addReceive/checkFirst",
       "style": {
-        "navigationBarTitleText": "校验复核",
-        "app-plus": {
-          "bounce": "vertical",
-          "titleNView": {
-            "buttons": [
-              {
-                "text": "\ue534",
-                "fontSrc": "/static/uni.ttf",
-                "fontSize": "22px",
-                "color": "#FFFFFF"
-              }
-            ]
-          }
-        }
+        "navigationBarTitleText": "校验复核"
       }
     },
     {
       "path": "pages/addReceive/checkSecond",
       "style": {
-        "navigationBarTitleText": "校验复核",
-        "app-plus": {
-          "bounce": "vertical",
-          "titleNView": {
-            "buttons": [
-              {
-                "text": "\ue534",
-                "fontSrc": "/static/uni.ttf",
-                "fontSize": "22px",
-                "color": "#FFFFFF"
-              }
-            ]
-          }
-        }
+        "navigationBarTitleText": "校验复核"
       }
     },
     {
       "path": "pages/addReceive/checkThird",
       "style": {
-        "navigationBarTitleText": "校验复核",
-        "app-plus": {
-          "bounce": "vertical",
-          "titleNView": {
-            "buttons": [
-              {
-                "text": "\ue534",
-                "fontSrc": "/static/uni.ttf",
-                "fontSize": "22px",
-                "color": "#FFFFFF"
-              }
-            ]
-          }
-        }
+        "navigationBarTitleText": "校验复核"
       }
     },
     {
       "path": "pages/addReceive/confirmCarInfos",
       "style": {
-        "navigationBarTitleText": "确认车辆信息",
-        "app-plus": {
-          "bounce": "vertical",
-          "titleNView": {
-            "buttons": [
-              {
-                "text": "\ue534",
-                "fontSrc": "/static/uni.ttf",
-                "fontSize": "22px",
-                "color": "#FFFFFF"
-              }
-            ]
-          }
-        }
+        "navigationBarTitleText": "确认车辆信息"
       }
     },
     {
       "path": "pages/addReceive/checkTrayRebar",
       "style": {
-        "navigationBarTitleText": "盘螺校验复核",
-        "app-plus": {
-          "bounce": "vertical",
-          "titleNView": {
-            "buttons": [
-              {
-                "text": "\ue534",
-                "fontSrc": "/static/uni.ttf",
-                "fontSize": "22px",
-                "color": "#FFFFFF"
-              }
-            ]
-          }
-        }
+        "navigationBarTitleText": "盘螺校验复核"
       }
     },
     {
       "path": "pages/addReceive/confirmData",
       "style": {
-        "navigationBarTitleText": "确认实收数据",
-        "app-plus": {
-          "bounce": "vertical",
-          "titleNView": {
-            "buttons": [
-              {
-                "text": "\ue534",
-                "fontSrc": "/static/uni.ttf",
-                "fontSize": "22px",
-                "color": "#FFFFFF"
-              }
-            ]
-          }
-        }
+        "navigationBarTitleText": "确认实收数据"
       }
     },
     {
       "path": "pages/receiveRecords/receiveRecordsDetail",
       "style": {
-        "navigationBarTitleText": "收料详情",
-        "app-plus": {
-          "bounce": "vertical",
-          "titleNView": {
-            "buttons": [
-              {
-                "text": "\ue534",
-                "fontSrc": "/static/uni.ttf",
-                "fontSize": "22px",
-                "color": "#FFFFFF"
-              }
-            ]
-          }
-        }
+        "navigationBarTitleText": "收料详情"
       }
     },
     {
       "path": "pages/tabBar/ReceiveRecords/ReceiveRecords",
       "style": {
-        "navigationBarTitleText": "收料记录",
-        "app-plus": {
-          "bounce": "vertical",
-          "titleNView": {
-            "buttons": [
-              {
-                "text": "\ue534",
-                "fontSrc": "/static/uni.ttf",
-                "fontSize": "22px",
-                "color": "#FFFFFF"
-              }
-            ]
-          }
-        }
+        "navigationBarTitleText": "收料记录"
       }
     },
     {
       "path": "pages/tabBar/Setting/Setting",
       "style": {
-        "navigationBarTitleText": "设置",
-        "app-plus": {
-          "bounce": "vertical",
-          "titleNView": {
-            "buttons": [
-              {
-                "text": "\ue534",
-                "fontSrc": "/static/uni.ttf",
-                "fontSize": "22px",
-                "color": "#FFFFFF"
-              }
-            ]
-          }
-        }
+        "navigationBarTitleText": "设置"
       }
     },
     {

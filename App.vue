@@ -167,7 +167,7 @@ page {
 }
 
 .uni-panel {
-  margin-bottom: 12px;
+  margin-bottom: 12rpx;
 }
 
 .uni-panel-h {
@@ -183,23 +183,29 @@ page {
   cursor: pointer;
   /* #endif */
 }
+button {
+  font-size: 32rpx;
+}
 
 /* #endif*/
 /** start table 样式复写 */
 
 .uni-table-th {
-  padding: 12rpx 12rpx !important;
+  padding: 12rpx 0rpx !important;
   font-weight: 400 !important;
   color: #333 !important;
-  font-size: 26rpx !important;
+  font-size: 24rpx !important;
 }
 .uni-table-td {
   font-size: 22rpx !important;
-  padding: 12rpx !important;
+  padding: 12rpx 0 !important;
   font-weight: 400 !important;
   color: #333 !important;
   line-height: 30rpx !important;
+  word-break: break-all !important;
 }
-
+.uni-forms-item__label {
+  height: 28px !important;
+}
 /** end table 样式复写 */
 </style>

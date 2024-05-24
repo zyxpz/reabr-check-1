@@ -10,11 +10,11 @@
         class="table"
       >
         <uni-tr>
-          <uni-th width="30%" align="center">规格型号</uni-th>
-          <uni-th width="25%" align="center">送货单根数</uni-th>
-          <uni-th width="25%" align="center">实重复核根数</uni-th>
-          <uni-th width="10%" align="center">差异</uni-th>
-          <uni-th width="10%" align="center">结果</uni-th>
+          <uni-th width="30px" align="center">规格型号</uni-th>
+          <uni-th width="30px" align="center">送货单根数</uni-th>
+          <uni-th width="30px" align="center">实重复核根数</uni-th>
+          <uni-th width="10px" align="center">差异</uni-th>
+          <uni-th width="10px" align="center">结果</uni-th>
         </uni-tr>
         <uni-tr
           v-for="(item, index) in [{ name: 'HRB400φ24', amount: 12 }]"
@@ -29,7 +29,7 @@
             {{ item.diff }}
           </uni-td>
           <uni-td align="center">
-            {{ item.diff }}
+            <uni-icons type="checkbox-filled" color="#23d923" />
           </uni-td>
         </uni-tr>
       </uni-table>
@@ -49,11 +49,11 @@
         class="table"
       >
         <uni-tr>
-          <uni-th width="30%" align="center">规格型号</uni-th>
-          <uni-th width="25%" align="center">送货单重量</uni-th>
-          <uni-th width="25%" align="center">实重复核重量</uni-th>
-          <uni-th width="10%" align="center">差异</uni-th>
-          <uni-th width="10%" align="center">结果</uni-th>
+          <uni-th width="30px" align="center">规格型号</uni-th>
+          <uni-th width="30px" align="center">送货单重量</uni-th>
+          <uni-th width="30px" align="center">实重复核重量</uni-th>
+          <uni-th width="10px" align="center">差异</uni-th>
+          <uni-th width="10px" align="center">结果</uni-th>
         </uni-tr>
         <uni-tr
           v-for="(item, index) in [{ name: 'HRB400φ24', amount: 12 }]"
@@ -68,7 +68,7 @@
             {{ item.diff }}
           </uni-td>
           <uni-td align="center">
-            {{ item.diff }}
+            <uni-icons type="checkbox-filled" color="#23d923" />
           </uni-td>
         </uni-tr>
       </uni-table>
@@ -93,7 +93,7 @@ export default {
 <style lang="scss">
 .title {
   font-weight: 700;
-  font-size: 28rpx;
+  font-size: 32rpx;
   padding: 16rpx;
 }
 .item {

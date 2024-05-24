@@ -53,7 +53,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 32rpx);
 }
 .content {
   flex: 1;

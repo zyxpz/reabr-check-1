@@ -67,11 +67,11 @@ export default {
 
 <style lang="scss">
 .add-material-page {
-  padding: 16rpx;
+  padding: 16rpx 12rpx;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: calc(100vh - 72px);
+  height: calc(100vh - 32rpx);
 }
 .content {
   flex: 1;

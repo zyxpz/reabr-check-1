@@ -4,7 +4,7 @@
       <uni-forms
         ref="baseForm"
         :model="formData"
-        labelWidth="194rpx"
+        labelWidth="105px"
         :rules="customRules"
       >
         <view class="card">
@@ -16,31 +16,28 @@
           >
           <u-cus-gap size="24" />
 
-          <uni-forms-item
-            style="margin-bottom: 12rpx"
-            label="车牌："
-            name="truckNo"
-          >
+          <uni-forms-item label="车牌:" name="truckNo">
             <uni-easyinput
               type="text"
               v-model="formData.truckNo"
               placeholder="请输入姓名"
+              style="height: 35px"
             />
           </uni-forms-item>
           <uni-forms-item
-            label="车辆到场时间："
+            label="车辆到场时间:"
             name="time"
-            style="margin-bottom: 12rpx"
+            @click="showDatetimePicker"
           >
-            <uni-datetime-picker v-model="formData.time" @change="changeTime">
-              <uni-easyinput type="text" v-model="formData.time"
-            /></uni-datetime-picker>
+            <uni-datetime-picker
+              v-model="formData.time"
+              type="datetime"
+              @change="changeTime"
+            >
+              <!-- <view class="time-picker">{{ formData.time ?? '请选择' }}</view> -->
+            </uni-datetime-picker>
           </uni-forms-item>
-          <uni-forms-item
-            label="车辆称重照片："
-            name="gpics"
-            style="margin-bottom: 12rpx"
-          >
+          <uni-forms-item label="车辆称重照片:" name="gpics">
             <uni-file-picker
               v-model="formData.gpics"
               file-mediatype="image"
@@ -54,11 +51,7 @@
               :source-type="['camera, album']"
             />
           </uni-forms-item>
-          <uni-forms-item
-            label="货/铭牌照片："
-            name="tpics"
-            style="margin-bottom: 12rpx"
-          >
+          <uni-forms-item label="货/铭牌照片:" name="tpics">
             <uni-file-picker
               v-model="formData.tpics"
               file-mediatype="image"
@@ -73,7 +66,7 @@
             />
           </uni-forms-item>
           <uni-forms-item
-            label="送货单照片："
+            label="送货单照片:"
             name="sendPics"
             style="margin-bottom: 0rpx"
           >
@@ -101,7 +94,7 @@
           <u-cus-gap size="24" />
           <uni-forms-item
             style="margin-bottom: 4rpx"
-            label="验收结果："
+            label="验收结果:"
             name="result"
           >
             <uni-data-checkbox
@@ -110,7 +103,7 @@
             ></uni-data-checkbox>
           </uni-forms-item>
           <uni-forms-item
-            label="验收意见："
+            label="验收意见:"
             name="remark"
             style="margin-bottom: 4rpx"
           >
@@ -136,17 +129,17 @@
               v-model="formData.extNo"
               placeholder="请输入"
             />
-            <image src="/static/scan.svg" class="icon-scan" />
+            <image src="/static/scan.svg" class="icon-scan" @click="scan" />
           </view>
         </view>
       </uni-forms>
     </view>
     <uni-row class="g-flex-aic-jcsb">
       <uni-col :span="6"
-        ><button type="default" @click="handlePrev">上一步</button></uni-col
+        ><button type="primary" @click="handlePrev">上一步</button></uni-col
       >
       <uni-col :span="6"
-        ><button type="default" @click="handleDraft">暂存</button></uni-col
+        ><button type="warn" @click="handleDraft">暂存</button></uni-col
       >
       <uni-col :span="10"
         ><button type="primary" @click="handleSave">保存并归档</button></uni-col
@@ -157,7 +150,11 @@
 <script>
 import image from 'ali-oss/lib/image';
 import permision from '@/common/permission';
+// import uvDatetimePicker from '@/uni_modules/uv-datetime-picker/components/uv-datetime-picker/uv-datetime-picker.vue';
 export default {
+  components: {
+    // uvDatetimePicker,
+  },
   data() {
     return {
       formData: {
@@ -226,6 +223,21 @@ export default {
     };
   },
   methods: {
+    showDatetimePicker() {
+      this.$refs.datetimePicker.open();
+    },
+    formatter(type, value) {
+      if (type === 'year') {
+        return `${value}年`;
+      }
+      if (type === 'month') {
+        return `${value}月`;
+      }
+      if (type === 'day') {
+        return `${value}日`;
+      }
+      return value;
+    },
     changeTime(e) {
       this.formData.time = e;
     },
@@ -319,7 +331,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 32rpx);
 }
 .content {
   flex: 1;
@@ -339,5 +351,16 @@ export default {
   width: 40rpx;
   height: 40rpx;
   margin-left: 12rpx;
+}
+.uni-forms-item {
+  margin-bottom: 16rpx !important;
+}
+.time-picker {
+  height: 30px;
+  border: solid 1px #dcdfe6;
+  display: flex;
+  align-items: center;
+  color: rgb(51, 51, 51);
+  padding-left: 10px;
 }
 </style>

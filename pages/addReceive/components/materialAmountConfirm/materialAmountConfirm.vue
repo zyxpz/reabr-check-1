@@ -8,12 +8,10 @@
     <view class="length">单根长度（米）： {{ dt.amount }} 米</view>
     <uni-table ref="table" border emptyText="暂无数据">
       <uni-tr>
-        <uni-th width="30%" align="center">
-          <view class="td-content">维度</view></uni-th
-        >
-        <uni-th width="25%" align="center">送货单</uni-th>
-        <uni-th width="25%" align="center">复核结果</uni-th>
-        <uni-th width="10%" align="center">实点根数</uni-th>
+        <uni-th width="15px" align="center"> 维度</uni-th>
+        <uni-th width="25px" align="center">送货单</uni-th>
+        <uni-th width="25px" align="center">复核结果</uni-th>
+        <uni-th width="25px" align="center">实点根数</uni-th>
       </uni-tr>
       <uni-tr v-for="(item, index) in dt.children" :key="index">
         <uni-td align="center">{{ item.name }}</uni-td>
@@ -122,7 +120,7 @@ export default {
 </script>
 <style>
 .title {
-  font-size: 28rpx;
+  font-size: 30rpx;
   color: #333;
   text-align: center;
   font-weight: 500;
