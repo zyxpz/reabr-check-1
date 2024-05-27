@@ -26,11 +26,11 @@
               v-model="totalWeight"
               type="number"
               placeholder="请输入"
-              @input="(e) => changeInput(e, item.id, 'length')"
+              @input="(e) => changeTotalWeight(e)"
             />
             <text>千克</text>
           </view>
-          <view class="g-a">扫码获取</view>
+          <view class="g-a" @click="handleScan">扫码获取</view>
         </view>
       </view>
     </view>
@@ -127,6 +127,7 @@
 <script>
 import CusTip from '@/components/cus-tip';
 import ChooseCategory from './chooseCategory.vue';
+import { getWarning4Url } from '@/utils/index.ts';
 import { v4 as uuidv4 } from 'uuid';
 export default {
   components: {
@@ -160,6 +161,10 @@ export default {
        * 混装实重总重量
        */
       totalWeight: '',
+      /**
+       * 是否手动输入
+       */
+      isHandle: false,
       /**
        * 弹窗显示状态
        */
@@ -259,6 +264,13 @@ export default {
       this.weighType = Number(e.detail.value);
     },
     /**
+     * 更改总重
+     */
+    changeTotalWeight(e) {
+      this.totalWeight = e;
+      this.isHandle = true;
+    },
+    /**
      * 选择钢筋规格型号回调
      */
     handleCategoryConfirm(value) {
@@ -331,7 +343,33 @@ export default {
             : '/pages/addReceive/checkTrayRebar',
       });
     },
+    /**
+     * 扫码获取
+     * @param options
+     */
+    handleScan() {
+      const params = {
+        attributionCode: 1088,
+        // assembleUrl: 'http://weighmaster.pinming.cn/material-client-management/api/receiptRecycle/assemble',
+        assembleUrl:
+          'https://zz-test05.pinming.org/material-client-management/api/receiptRecycle/assemble',
+        warning4Url: getWarning4Url(),
+      };
+      let paramsStr = '';
+      Object.keys(params).forEach((key, index) => {
+        if (!index) {
+          /* 预发环境 */
+          search = `?${key}=${params[key]}`;
+        } else {
+          search = `${search}&${key}=${params[key]}`;
+        }
+      });
+      uni.navigateTo({
+        url: '/pages/sdkView/sdkView?attributionCode=1088&assembleUrl=/material-management/api/biz/sdk/sdk',
+      });
+    },
   },
+
   onLoad(options) {
     this.rebarType = options.rebarType;
   },

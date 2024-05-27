@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view class="page">
     <uni-notice-bar text="请在“设置”页，扫一扫绑定基石授权用户码" />
     <uni-notice-bar text="用户授权码失效，请重新绑定。" />
     <uni-notice-bar text="当前归属方未订阅此服务或订阅已到期。" />
@@ -252,6 +252,9 @@ export default {
 </script>
 
 <style lang="scss">
+.page {
+  padding: 12rpx;
+}
 .slot-box {
   /* #ifndef APP-NVUE */
   display: flex;

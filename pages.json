@@ -45,6 +45,12 @@
       }
     },
     {
+      "path": "pages/sdkView/sdkView",
+      "style": {
+        "navigationBarTitleText": "数据组装"
+      }
+    },
+    {
       "path": "pages/addReceive/checkSecond",
       "style": {
         "navigationBarTitleText": "校验复核"
