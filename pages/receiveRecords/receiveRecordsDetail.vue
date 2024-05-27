@@ -11,18 +11,22 @@
       <view v-show="activeKey === 'review'" style="padding: 16rpx"
         ><review-detail
       /></view>
-      <view v-show="activeKey === 'car'">car</view>
+      <view v-show="activeKey === 'car'"><car-detail /></view>
     </view>
   </view>
 </template>
 <script>
 import ReviewDetail from './components/reviewDetail.vue';
 import ConfirmDetail from './components/confirmDetail.vue';
+import CarDetail from './components/carDetail.vue';
+// import ConfirmCarInfo from '@/pages/addReceive/confirmCarInfos.vue';
 
 export default {
   components: {
     ReviewDetail,
     ConfirmDetail,
+    // ConfirmCarInfo,
+    CarDetail,
   },
   data() {
     return {
