@@ -10,6 +10,9 @@ import { createStore } from 'vuex'
 const store = createStore({
 // #endif
 	state: {
+		/**
+		 * 模板使用 start
+		 */
 		hasLogin: false,
 		isUniverifyLogin: false,
 		loginProvider: "",
@@ -22,7 +25,36 @@ const store = createStore({
 		leftWinActive: '/pages/component/view/view',
 		activeOpen: '',
 		menu: [],
-		univerifyErrorMsg: ''
+		univerifyErrorMsg: '',
+		/**
+		 * 模板使用 end
+		 */
+		/**
+		 * 自己业务 start
+		 */
+		userInfo: {
+			/**
+			 * 归属方
+			 */
+			attributionCode: '',
+			/**
+			 * 用户名
+			 */
+			userName: '',
+			/**
+			 * 租户
+			 */
+			uid: '',
+			/**
+			 * 租户名
+			 */
+			uidName: ''
+		},
+		scanData: {},
+		cusToken: '',
+		/**
+		 * 自己业务 end
+		 */
 	},
 	mutations: {
 		login(state, provider) {
@@ -66,7 +98,21 @@ const store = createStore({
 		},
 		setUniverifyErrorMsg(state,payload = ''){
 			state.univerifyErrorMsg = payload
+		},
+		/***************自己的业务 start ***************/
+		/** 修改用户信息 */
+		setUserInfo(state, payload) {
+			state.userInfo = payload
+		},
+		setCusToken(state, payload) {
+			state.cusToken = payload
+		},
+		setScanData(state, payload) {
+			state.scanData = payload
 		}
+
+		/***************自己的业务 end ***************/
+
 	},
 	getters: {
 		currentColor(state) {

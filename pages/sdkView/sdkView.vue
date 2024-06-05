@@ -12,12 +12,15 @@
     id="ifram-root"
     style="height: 100vh; width: 100vw"
     :src="src"
+    @message="onMessage"
+    height="300px"
   >
   </web-view>
 </template>
 <script>
 // import { onMounted, ref } from 'vue';
 // import { useRoute } from 'vue-router';
+import { mapMutations, mapState } from 'vuex';
 import Test from './index';
 // import { getUrlParam } from '@/utils/index';
 
@@ -67,7 +70,6 @@ export default {
     this.src = search;
   },
   mounted() {
-    console.log(this.$refs.iframRoot, 123);
     // new Test({
     //   container: this.$refs.iframRoot,
     //   urlParams: {
@@ -81,6 +83,28 @@ export default {
     //     console.log('cancel');
     //   },
     // });
+  },
+  methods: {
+    ...mapMutations(['setScanData']),
+    onMessage(event) {
+      console.log('Message event:', event); // Log the entire event object
+      const message = event.detail.data[0];
+      // if (message.action === 'cancel') {
+      //   const data = message.data;
+      //   console.log(data, 888);
+      //   this.setScanData(data);
+      //   uni.navigateBack({
+      //     delta: 1,
+      //   });
+      // }
+      if (message.action === 'confirm') {
+        const data = message.data;
+        this.setScanData(data);
+        uni.navigateBack({
+          delta: 1,
+        });
+      }
+    },
   },
 };
 </script>

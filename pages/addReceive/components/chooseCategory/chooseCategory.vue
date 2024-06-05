@@ -18,10 +18,14 @@
         </uni-row>
         <view class="popup-content">
           <view class="categroy-content">
-            <uni-row class="item" v-for="item in materialList" :key="item.id">
+            <uni-row
+              class="item"
+              v-for="item in materialList"
+              :key="item.materialId"
+            >
               <uni-col :span="18">
                 <view class="name"
-                  >{{ item.materialName }}/{{ item.spec }}</view
+                  >{{ item.materialName }}/{{ item.materialSpec }}</view
                 >
               </uni-col>
               <uni-col :span="6">
@@ -37,7 +41,7 @@
                     class="input"
                     type="number"
                     :value="item.count"
-                    @input="updateCount"
+                    @input="(e) => updateCount(e, item)"
                     :min="0"
                   />
                   <button class="btn btn-right" @click="() => increase(item)">
@@ -57,6 +61,8 @@
   </view>
 </template>
 <script>
+import { materialList } from '../../../../common/constants';
+
 export default {
   props: ['visible'],
   data() {
@@ -64,20 +70,7 @@ export default {
       /**
        * 钢筋规格型号
        */
-      materialList: [
-        {
-          materialName: '直螺纹钢筋',
-          spec: '10mm',
-          id: 1,
-          count: 0,
-        },
-        {
-          materialName: '直螺纹钢筋',
-          spec: '20mm',
-          id: 2,
-          count: 0,
-        },
-      ],
+      materialList,
     };
   },
   methods: {
@@ -108,29 +101,45 @@ export default {
     },
     decrease(item) {
       this.materialList.forEach((one) => {
-        if (one.id === item.id) {
+        if (one.materialId === item.materialId) {
           one.count--;
         }
       });
     },
     increase(item) {
       this.materialList.forEach((one) => {
-        if (one.id === item.id) {
+        if (one.materialId === item.materialId) {
           one.count++;
+        }
+      });
+    },
+    updateCount(e, item) {
+      console.log(e, 'ee');
+      this.materialList.forEach((one) => {
+        if (one.materialId === item.materialId) {
+          one.count = Number(e.detail.value);
         }
       });
     },
     handleConfirm() {
       this.$emit('confirm', this.materialList);
     },
+    /**
+     * 获取钢筋列表数据
+     */
+    async getMaterialList() {},
   },
 
   watch: {
     visible() {
       if (this.visible) {
         this.$refs.popup.open();
+        this.getMaterialList();
       } else {
         this.$refs.popup.close();
+        this.materialList?.forEach((one) => {
+          one.count = 0;
+        });
       }
     },
   },

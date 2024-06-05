@@ -27,15 +27,15 @@
         </template>
         <template v-slot:body>
           <text class="slot-box slot-text" ref="attribute">{{
-            tenantInfo.name
+            tenantInfo.userName
           }}</text>
         </template>
         <template v-slot:footer>
           <picker
             @change="changeTenant"
             :value="tenantIndex"
-            :range="tenantList"
-            range-key="name"
+            :range="infosByPhoneSn"
+            range-key="userName"
           >
             <text class="cus-a">切换</text>
           </picker>
@@ -71,7 +71,7 @@
         </template>
         <template v-slot:body>
           <text class="slot-box slot-text" ref="attribute">{{
-            attributeInfo.name
+            tenantInfo.consumeName
           }}</text>
         </template>
       </uni-list-item>
@@ -80,6 +80,9 @@
 </template>
 
 <script>
+import request from '@/utils/request';
+import { mapState, mapMutations, mapActions } from 'vuex';
+// var testModule = uni.requireNativePlugin('Univalsoft-DeviceId');
 export default {
   data() {
     return {
@@ -92,102 +95,125 @@ export default {
        */
       systemInfo: {},
       /**
-       * 租户列表
-       */
-      tenantList: [
-        {
-          name: '租户1',
-          id: 1,
-        },
-        {
-          name: '租户2',
-          id: 2,
-        },
-      ],
-      /**
        * 租户信息
        */
-      tenantInfo: {
-        name: '租户2',
-        id: 2,
-      },
-      tenantIndex: 1,
+      tenantInfo: {},
+      tenantIndex: 0,
       /**
        * 归属方信息
        */
-      attributeList: [
-        {
-          name: '归属方1',
-          id: 1,
-        },
-        {
-          name: '归属方2',
-          id: 2,
-        },
-      ],
+      attributeList: [],
       attributeInfo: {},
       attributeIndex: 0,
       /**
        * 用户信息
        */
       userInfo: {},
-      classValue: '1-2',
-      classDataTree: [
-        {
-          text: '一年级',
-          value: '1-0',
-          children: [
-            {
-              text: '1.1班',
-              value: '1-1',
-            },
-            {
-              text: '1.2班',
-              value: '1-2',
-            },
-          ],
-        },
-        {
-          text: '二年级',
-          value: '2-0',
-          children: [
-            {
-              text: '2.1班',
-              value: '2-1',
-            },
-            {
-              text: '2.2班',
-              value: '2-2',
-            },
-          ],
-        },
-        {
-          text: '三年级',
-          value: '3-0',
-          disable: true,
-        },
-      ],
+      /** 根据设备码拿用户信息 */
+      infosByPhoneSn: [],
     };
   },
+  computed: {
+    ...mapState(['suerInfo']),
+  },
   methods: {
-    getSystemInfo() {
+    ...mapMutations(['setUserInfo', 'setCusToken']),
+    writeFile(path, content) {
+      plus.io.requestFileSystem(
+        plus.io.PRIVATE_DOC,
+        function (fs) {
+          fs.root.getFile(
+            path,
+            { create: true },
+            function (fileEntry) {
+              fileEntry.createWriter(function (writer) {
+                writer.onwrite = function () {
+                  console.log('文件写入成功');
+                };
+                writer.onerror = function (e) {
+                  console.log('文件写入失败', e);
+                };
+                writer.write(content);
+              });
+            },
+            function (e) {
+              console.log('获取文件失败', e);
+            },
+          );
+        },
+        function (e) {
+          console.log('请求文件系统失败', e);
+        },
+      );
+    },
+    readFile(path) {
+      plus.io.requestFileSystem(
+        plus.io.PRIVATE_DOC,
+        function (fs) {
+          fs.root.getFile(
+            path,
+            { create: false },
+            function (fileEntry) {
+              fileEntry.file(function (file) {
+                const reader = new plus.io.FileReader();
+                reader.onloadend = function (e) {
+                  console.log('文件读取成功', e.target.result);
+                };
+                reader.onerror = function (e) {
+                  console.log('文件读取失败', e);
+                };
+                reader.readAsText(file);
+              });
+            },
+            function (e) {
+              console.log('获取文件失败', e);
+            },
+          );
+        },
+        function (e) {
+          console.log('请求文件系统失败', e);
+        },
+      );
+    },
+
+    async getSystemInfo() {
       // uni.getSystemInfo({
       // 	success: (res) => {
       // 		this.systemInfo = res
       // 	}
       // })
+
+      const res = await request.get(`/api/common/getInfoByPhoneSn/123456789`);
+      this.infosByPhoneSn = res?.data;
+      this.tenantIndex = 0;
+      this.tenantInfo = this.infosByPhoneSn?.[0];
+
       // #ifdef APP-PLUS
       if (uni.getSystemInfoSync()?.platform === 'android') {
         // Android 平台代码
         this.systemInfo = {
           model: plus.device.uuid,
         };
-      } else if (uni.getSystemInfoSync().platform === 'ios') {
+      }
+      if (uni.getSystemInfoSync().platform === 'ios') {
+        this.systemInfo = {
+          model: '123456789',
+        };
+        // testModule.getDeviceIDCallback((ret) => {
+        //   uni.showToast({
+        //     title: '调用方法 uuid ' + ret,
+        //     icon: 'none',
+        //   });
+        // });
         // iOS 平台代码
         // 注意：iOS 不允许直接获取 IMEI
       }
       // #endif
+      this.systemInfo = {
+        model: '123456789',
+      };
     },
+
     handleCopy() {
       try {
         const text = this.systemInfo?.model;
@@ -234,7 +260,7 @@ export default {
     changeTenant(e) {
       const index = e.detail?.value;
       this.tenantIndex = index;
-      this.tenantInfo = this.tenantList?.[index];
+      this.tenantInfo = this.infosByPhoneSn?.[index];
     },
     /**
      * 切换归属方
@@ -246,7 +272,38 @@ export default {
     },
   },
   mounted() {
+    // this.readFile('data.txt');
+    // this.writeFile('data.txt', 'your data');
     this.getSystemInfo();
+  },
+  watch: {
+    tenantInfo(newValue) {
+      this.attributeList = this.infosByPhoneSn?.find(
+        (one) => one.uid === newValue?.uid,
+      )?.list;
+      this.attributeIndex = 0;
+      this.attributeInfo = this.attributeList?.[0];
+    },
+    attributeInfo(newValue) {
+      // this.setUserInfo({
+      //   /** 选中的租户 */
+      //   tenantInfo: this.tenantInfo,
+      //   /** 选中的归属方 */
+      //   attributeInfo: newValue,
+      //   phoneSn: this.systemInfo?.model,
+      // });
+      uni.setStorageSync('tenant-info', this.tenantInfo);
+      uni.setStorageSync('attribute-info', newValue);
+      uni.setStorageSync('phoneSn', this.systemInfo?.model);
+      request
+        .get(
+          `/api/common/loginByPhoneSn/123456789/${this.tenantInfo?.uid}/${newValue?.attributionId}`,
+        )
+        .then((res) => {
+          this.setCusToken(res?.data);
+          uni.setStorageSync('cus-token', res?.data);
+        });
+    },
   },
 };
 </script>
@@ -268,6 +325,9 @@ export default {
   flex: 1;
   color: #999;
   margin: 0 16rpx;
+}
+.slot-left {
+  width: 120rpx;
 }
 
 .cus-a {

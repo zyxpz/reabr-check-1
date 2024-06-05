@@ -11,21 +11,30 @@
           <uni-th width="10px" align="center">结果</uni-th>
         </uni-tr>
         <uni-tr
-          v-for="(item, index) in [{ name: 'HRB400φ24', amount: 12 }]"
+          v-for="(item, index) in detail?.checkReverseVO?.theoryCheckVO ?? []"
           :key="index"
         >
           <uni-td align="center"
-            ><view>{{ item.name }}</view></uni-td
+            ><view>{{ item.materialSpec }}</view></uni-td
           >
           <uni-td align="center">
-            <view>{{ item.amount }}</view>
+            <view>{{ item.sendAmount }}</view>
           </uni-td>
-          <uni-td align="center">{{ item.amount1 }}</uni-td>
+          <uni-td align="center">{{ item.theoryAmount }}</uni-td>
           <uni-td align="center">
-            {{ item.diff }}
+            {{ item.amountDif }}
           </uni-td>
           <uni-td align="center" class="td-10vw td-result">
-            <uni-icons type="checkbox-filled" color="#23d923" />
+            <uni-icons
+              v-show="item.amountResult === 1"
+              type="checkbox-filled"
+              color="#23d923"
+            />
+            <uni-icons
+              v-show="item.amountResult === 2"
+              type="clear"
+              color="red"
+            />
           </uni-td>
         </uni-tr>
       </uni-table>
@@ -40,29 +49,44 @@
           <uni-th width="10px" align="center">结果</uni-th>
         </uni-tr>
         <uni-tr
-          v-for="(item, index) in [{ name: 'HRB400φ24', amount: 12 }]"
+          v-for="(item, index) in detail?.checkReverseVO?.theoryCheckVO ?? []"
           :key="index"
         >
           <uni-td align="center"
-            ><view>{{ item.name }}</view></uni-td
+            ><view>{{ item.materialSpec }}</view></uni-td
           >
           <uni-td align="center">
-            <view>{{ item.amount }}</view>
+            <view>{{ item.sendWeight }}</view>
           </uni-td>
-          <uni-td align="center">{{ item.amount1 }}</uni-td>
+          <uni-td align="center">{{ item.theoryWeight }}</uni-td>
           <uni-td align="center">
-            {{ item.diff }}
+            {{ item.weightDif }}
           </uni-td>
-          <uni-td align="center" class="td-10vw">
-            <uni-icons type="checkbox-filled" color="#23d923" />
+          <uni-td align="center" class="td-10vw td-result">
+            <uni-icons
+              v-show="item.weightResult === 1"
+              type="checkbox-filled"
+              color="#23d923"
+            />
+            <uni-icons
+              v-show="item.weightResult === 2"
+              type="clear"
+              color="red"
+            />
           </uni-td>
         </uni-tr>
       </uni-table>
     </uni-section>
     <view class="g-flex-aic-jcc">
       <view class="g-flex-aic-jcsa" style="width: 80%">
-        <u-cus-result type="success" text="各规格根数检验" />
-        <u-cus-result type="fail" text="各规格重量校验" />
+        <u-cus-result
+          :type="finallyAmountResult ? 'success' : 'fail'"
+          text="各规格根数检验"
+        />
+        <u-cus-result
+          :type="finallyWeightResult ? 'success' : 'fail'"
+          text="各规格重量校验"
+        />
       </view>
     </view>
     <u-cus-gap size="16" />
@@ -70,10 +94,28 @@
 </template>
 <script>
 export default {
+  props: ['detail'],
   data() {
     return {
       loading: false,
     };
+  },
+  watch: {
+    detail(newValue) {
+      console.log(newValue, 77);
+    },
+  },
+  computed: {
+    finallyWeightResult() {
+      return this?.detail?.checkReverseVO?.theoryCheckVO?.every(
+        (one) => one.weightResult === '1',
+      );
+    },
+    finallyAmountResult() {
+      return this?.detail?.checkReverseVO?.theoryCheckVO?.every(
+        (one) => one.amountResult === '1',
+      );
+    },
   },
 };
 </script>

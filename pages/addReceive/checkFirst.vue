@@ -1,8 +1,13 @@
 <template>
   <view class="add-material-page">
     <view class="content">
-      <delivery-node />
+      <delivery-node :detail="detail" />
       <u-cus-gap size="24" />
+      <total-weight-deviation ref="childComp" :detail="detail" />
+      <view v-show="reverseWeightType">
+        <u-cus-gap size="24" />
+        <reverse-check :detail="detail" />
+      </view>
     </view>
     <uni-row class="btn-content">
       <uni-col :span="9"
@@ -23,24 +28,43 @@
 <script>
 import DeliveryNode from './components/deliveryNote/deliveryNote.vue';
 import TotalWeightDeviation from './components/totalWeightDeviation/totalWeightDeviation.vue';
+import ReverseCheck from './components/reverseCheck/reverseCheck.vue';
+import request from '@/utils/request.js';
+
 export default {
   components: {
     DeliveryNode,
     TotalWeightDeviation,
+    ReverseCheck,
   },
   data() {
     return {
       loading: false,
+      /** 验收单据详情 */
+      detail: {},
     };
   },
   methods: {
     /**
      * 继续
      */
-    handleNext() {
-      uni.navigateTo({
-        url: '/pages/addReceive/checkSecond',
-      });
+    async handleNext() {
+      if (!this.reverseWeightType) {
+        console.log(this.$refs.childComp.reverseWeightType, 88);
+        const reverseWeightType = this.$refs.childComp.reverseWeightType;
+        await request.get(
+          `/api/rebarCheck/reverseWeightType/${this.id}/${reverseWeightType}`,
+        );
+        await request.get(`/api/rebarCheck/second/${this.id}`);
+        this.getDetail();
+      } else {
+        uni.navigateTo({
+          url: `/pages/addReceive/confirmData?id=${this.id}`,
+        });
+      }
+      // uni.navigateTo({
+      //   url: '/pages/addReceive/checkThird',
+      // });
     },
     /**
      * 修改运单数据
@@ -57,6 +81,31 @@ export default {
       uni.switchTab({
         url: '/pages/tabBar/AddReceive/AddReceive',
       });
+    },
+    /**
+     * 获取详情
+     */
+    async getDetail() {
+      const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
+      this.detail = res?.data;
+      console.log(this.detail, 'this.detail');
+    },
+  },
+  onLoad(options) {
+    this.id = options.id;
+    this.getDetail();
+  },
+  onMounted() {
+    this.getDetail();
+  },
+  watch: {
+    id(newValue) {
+      this.getDetail();
+    },
+  },
+  computed: {
+    reverseWeightType() {
+      return this.detail?.checkReverseVO?.totalCheckVO?.reverseWeightType;
     },
   },
 };

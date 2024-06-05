@@ -4,16 +4,15 @@
     ><text v-show="readOnly">确认</text></view
   >
   <view class="card" v-for="dt in materialLists">
-    <view class="spec">{{ dt.name }}</view>
-    <view class="length">单根长度（米）： {{ dt.amount }} 米</view>
+    <view class="spec">{{ dt.materialSpec }}</view>
+    <view class="length">单根长度（米）： {{ dt.length }} 米</view>
     <uni-table ref="table" border emptyText="暂无数据">
       <uni-tr>
         <uni-th width="15px" align="center"> 维度</uni-th>
         <uni-th width="25px" align="center">送货单</uni-th>
         <uni-th width="25px" align="center">复核结果</uni-th>
-        <uni-th width="25px" align="center">实点根数</uni-th>
       </uni-tr>
-      <uni-tr v-for="(item, index) in dt.children" :key="index">
+      <uni-tr v-for="(item, index) in dt?.children" :key="index">
         <uni-td align="center">{{ item.name }}</uni-td>
         <uni-td
           :style="item.checkedType === '1' ? 'background-color: #28fb28' : ''"
@@ -28,60 +27,27 @@
           @click="() => handleTd(dt, item, '2')"
           >{{ item.amount1 }}</uni-td
         >
-        <uni-td
-          :style="item.checkedType === '3' ? 'background-color: #28fb28' : ''"
-          align="center"
-          @click="() => handleTd(dt, item, '3')"
-        >
-          {{ item.diff }}
-        </uni-td>
       </uni-tr>
     </uni-table>
     <u-cus-gap size="20" />
     <view>
       <text>数量确认：</text>
-      <text>1230.123 千克， 25 根 </text>
+      <text
+        >{{ dt?.children?.[1]?.confirmWeight ?? '-' }}
+        千克，
+        {{ dt?.children?.[0]?.confirmAmount ?? '-' }}
+        根
+      </text>
     </view>
   </view>
 </template>
 <script>
 import { v4 as uuidv4 } from 'uuid';
 export default {
-  props: ['readOnly'],
+  props: ['readOnly', 'checkType', 'detail'],
   data() {
     return {
-      materialLists: [
-        {
-          name: 'HRB400φ24',
-          amount: 12,
-          amount1: 12,
-          diff: 0,
-          id: uuidv4(),
-          children: [
-            {
-              name: '根数',
-              key: 'account',
-              amount: 12,
-              amount1: 12,
-              diff: 0,
-            },
-            {
-              name: '重量（千克）',
-              key: 'weight',
-              amount: 12,
-              amount1: 12,
-              diff: 0,
-            },
-          ],
-        },
-        {
-          name: 'HRB400φ24',
-          amount: 12,
-          amount1: 12,
-          diff: 0,
-          id: uuidv4(),
-        },
-      ],
+      materialLists: [],
     };
   },
   methods: {
@@ -98,10 +64,19 @@ export default {
           return {
             ...one,
             children: one.children.map((two) => {
+              const temp =
+                item.key === 'account'
+                  ? {
+                      confirmAmount: type === '1' ? two.amount : two.amount1,
+                    }
+                  : {
+                      confirmWeight: type === '1' ? two.amount : two.amount1,
+                    };
               if (two.key === item.key) {
                 return {
                   ...two,
                   checkedType: type,
+                  ...temp,
                 };
               } else {
                 return two;
@@ -112,7 +87,30 @@ export default {
           return one;
         }
       });
-
+      console.log(this.materialLists, 'this.materialLists');
+    },
+  },
+  watch: {},
+  watch: {
+    detail(newValue) {
+      this.materialLists = newValue?.checkConfirmVO?.list?.map((one) => ({
+        id: uuidv4(),
+        ...one,
+        children: [
+          {
+            name: '根数',
+            key: 'account',
+            amount: one.sendAmount,
+            amount1: one.reverseTheoryAmount,
+          },
+          {
+            name: '重量（千克）',
+            key: 'weight',
+            amount: one.sendWeight,
+            amount1: one.reverseTheoryWeight,
+          },
+        ],
+      }));
       console.log(this.materialLists, 'this.materialLists');
     },
   },

@@ -11,7 +11,7 @@
       <u-cus-gap size="16" />
       <uni-data-checkbox
         v-if="rebarType === '1'"
-        v-model="weighType"
+        v-model="checkType"
         :localdata="weighTypeList"
         @change="handleChangeWeighType"
       ></uni-data-checkbox>
@@ -23,7 +23,7 @@
             <uni-easyinput
               class="total-input"
               errorMessage
-              v-model="totalWeight"
+              v-model="actualWeight"
               type="number"
               placeholder="请输入"
               @input="(e) => changeTotalWeight(e)"
@@ -35,10 +35,12 @@
       </view>
     </view>
     <view class="items-container">
-      <view v-for="item in choosedMaterialList" class="item">
+      <view v-for="item in list" class="item">
         <view class="g-flex-aic-jcsb item-header">
-          <text class="item-sepc">规格型号</text>
-          <text class="g-a" @click="() => handleRemove(item.id)">移除</text>
+          <text class="item-sepc"
+            >{{ item.materialName }}/{{ item.materialSpec }}</text
+          >
+          <text class="g-a" @click="() => handleRemove(item.cusId)">移除</text>
         </view>
         <text>送货单数量</text>
         <u-cus-gap size="16" />
@@ -47,7 +49,7 @@
             <view class="item-content-row-title">单根长度(米)：</view>
             <view class="g-flex">
               <uni-tag
-                @click="() => handleLengthTag(text, item.id)"
+                @click="() => handleLengthTag(text, item.cusId)"
                 v-for="text in lenArr"
                 :text="text"
                 :key="text"
@@ -60,7 +62,7 @@
                 v-model="item.length"
                 type="number"
                 placeholder="请输入"
-                @input="(e) => changeInput(e, item.id, 'length')"
+                @input="(e) => changeInput(e, item.cusId, 'length')"
               />
             </view>
           </view>
@@ -69,15 +71,15 @@
             <view class="other-input">
               <uni-easyinput
                 errorMessage
-                v-model="item.amount"
+                v-model="item.sendAmount"
                 type="number"
                 placeholder="请输入"
-                @input="(e) => changeInput(e, item.id, 'amount')"
+                @input="(e) => changeInput(e, item.cusId, 'sendAmount')"
               />
             </view>
             <text>根</text>
           </view>
-          <view v-show="weighType === 1" class="item-content-row">
+          <view v-show="checkType === 2" class="item-content-row">
             <view class="item-content-row-title">实点根数：</view>
             <view class="other-input">
               <uni-easyinput
@@ -85,7 +87,7 @@
                 v-model="item.actualAmount"
                 type="number"
                 placeholder="请输入"
-                @input="(e) => changeInput(e, item.id, 'actualAmount')"
+                @input="(e) => changeInput(e, item.cusId, 'actualAmount')"
               />
             </view>
             <text>根</text>
@@ -96,10 +98,10 @@
           <view class="other-input">
             <uni-easyinput
               errorMessage
-              v-model="item.weight"
+              v-model="item.sendWeight"
               type="number"
               placeholder="请输入"
-              @input="(e) => changeInput(e, item.id, 'weight')"
+              @input="(e) => changeInput(e, item.cusId, 'sendWeight')"
             />
           </view>
           <text>千克</text>
@@ -107,10 +109,10 @@
       </view>
     </view>
     <uni-row>
-      <uni-col :span="choosedMaterialList.length ? 7 : 24"
+      <uni-col :span="list.length ? 7 : 24"
         ><button type="warn" @click="handleCancel">取消</button></uni-col
       >
-      <uni-col v-show="choosedMaterialList.length" :span="16" :offset="1"
+      <uni-col v-show="list.length" :span="16" :offset="1"
         ><button type="primary" @click="handleCheck" hover-class="is-hover">
           校验复核
         </button></uni-col
@@ -126,13 +128,19 @@
 
 <script>
 import CusTip from '@/components/cus-tip';
-import ChooseCategory from './chooseCategory.vue';
+import ChooseCategory from './components/chooseCategory/chooseCategory.vue';
 import { getWarning4Url } from '@/utils/index.ts';
 import { v4 as uuidv4 } from 'uuid';
+import request from '@/utils/request.js';
+import { mapState } from 'vuex';
+
 export default {
   components: {
     CusTip,
     ChooseCategory,
+  },
+  computed: {
+    ...mapState(['scanData', 'userInfo']),
   },
   data() {
     return {
@@ -146,21 +154,22 @@ export default {
       weighTypeList: [
         {
           text: '仅称重验收',
-          value: 0,
+          value: 1,
         },
         {
           text: '称重 + 实点根数验收',
-          value: 1,
+          value: 2,
         },
       ],
+      weightUnit: '千克',
       /**
-       * 选中的称重类型
+       * 验收类型 1 仅称重验收, 2 称重+实点根数验收
        */
-      weighType: 1,
+      checkType: 1,
       /**
        * 混装实重总重量
        */
-      totalWeight: '',
+      actualWeight: '',
       /**
        * 是否手动输入
        */
@@ -172,88 +181,39 @@ export default {
       /**
        * 钢筋规格型号
        */
-      choosedMaterialList: [
-        {
-          id: uuidv4(),
-          /**
-           * 单根长度
-           */
-          length: '',
-          /**
-           * 送货单根数
-           */
-          amount: '',
-          /**
-           * 实点根数
-           */
-          actualAmount: '',
-          /**
-           * 送货单重量
-           */
-          weight: '',
-        },
-        {
-          id: uuidv4(),
-          /**
-           * 单根长度
-           */
-          length: '',
-          /**
-           * 送货单根数
-           */
-          amount: '',
-          /**
-           * 实点根数
-           */
-          actualAmount: '',
-          /**
-           * 送货单重量
-           */
-          weight: '',
-        },
-        {
-          id: uuidv4(),
-          /**
-           * 单根长度
-           */
-          length: '',
-          /**
-           * 送货单根数
-           */
-          amount: '',
-          /**
-           * 实点根数
-           */
-          actualAmount: '',
-          /**
-           * 送货单重量
-           */
-          weight: '',
-        },
-        {
-          id: uuidv4(),
-          /**
-           * 单根长度
-           */
-          length: '',
-          /**
-           * 送货单根数
-           */
-          amount: '',
-          /**
-           * 实点根数
-           */
-          actualAmount: '',
-          /**
-           * 送货单重量
-           */
-          weight: '',
-        },
+      list: [
+        // {
+        //   cusId: uuidv4(),
+        //   /**
+        //    * 单根长度
+        //    */
+        //   length: '',
+        //   /**
+        //    * 送货单根数
+        //    */
+        //   sendAmount: '',
+        //   /**
+        //    * 实点根数
+        //    */
+        //   actualAmount: '',
+        //   /**
+        //    * 送货单重量
+        //    */
+        //   sendWeight: '',
+        //   /** 送货重量单位 */
+        //   sendWeightUnit: '千克',
+        //   /** 确认根数 */
+        //   confirmAmount: '',
+        //   /** 确认重量 */
+        //   confirmWeight: '',
+        // },
       ],
       /**
        * 长度数组
        */
       lenArr: ['6', '9', '13'],
+      /** 收料 id */
+      id: '',
     };
   },
   methods: {
@@ -261,26 +221,26 @@ export default {
      * 选中称重类型
      */
     handleChangeWeighType(e) {
-      this.weighType = Number(e.detail.value);
+      this.checkType = Number(e.detail.value);
     },
     /**
      * 更改总重
      */
     changeTotalWeight(e) {
-      this.totalWeight = e;
+      this.actualWeight = e;
       this.isHandle = true;
     },
     /**
      * 选择钢筋规格型号回调
      */
     handleCategoryConfirm(value) {
-      console.log(value, 888);
       value?.forEach((one) => {
         let arr = Array.from({ length: one.count }, (_, index) => index);
         arr.forEach(() => {
-          this.choosedMaterialList.unshift({
+          this.list.unshift({
             ...one,
-            id: uuidv4(),
+            cusId: uuidv4(),
+            sendWeightUnit: '千克',
           });
         });
       });
@@ -289,10 +249,8 @@ export default {
     /**
      * 移除某个钢筋规格型号
      */
-    handleRemove(id) {
-      this.choosedMaterialList = this.choosedMaterialList?.filter(
-        (one) => one.id !== id,
-      );
+    handleRemove(cusId) {
+      this.list = this.list?.filter((one) => one.cusId !== cusId);
     },
     /**
      * 选择总单位
@@ -303,24 +261,24 @@ export default {
     /**
      * 点击长度 tag
      */
-    handleLengthTag(text, id) {
-      console.log(text, id);
-      this.choosedMaterialList = this.choosedMaterialList?.map((one) => {
+    handleLengthTag(text, cusId) {
+      console.log(text, cusId);
+      this.list = this.list?.map((one) => {
         return {
           ...one,
-          length: one?.id === id ? text : one.length,
+          length: one?.cusId === cusId ? text : one.length,
         };
       });
     },
     /**
      * 输入框变化
      */
-    changeInput(e, id, type) {
-      console.log(e, id, type);
-      this.choosedMaterialList = this.choosedMaterialList?.map((one) => {
+    changeInput(e, cusId, type) {
+      console.log(e, cusId, type);
+      this.list = this.list?.map((one) => {
         return {
           ...one,
-          [type]: one?.id === id ? e : one[type],
+          [type]: one?.cusId === cusId ? e : one[type],
         };
       });
     },
@@ -330,17 +288,6 @@ export default {
     handleCancel() {
       uni.switchTab({
         url: '/pages/tabBar/AddReceive/AddReceive',
-      });
-    },
-    /**
-     * 校验复核
-     */
-    handleCheck() {
-      uni.navigateTo({
-        url:
-          this.rebarType === '1'
-            ? '/pages/addReceive/checkFirst'
-            : '/pages/addReceive/checkTrayRebar',
       });
     },
     /**
@@ -359,14 +306,56 @@ export default {
       Object.keys(params).forEach((key, index) => {
         if (!index) {
           /* 预发环境 */
-          search = `?${key}=${params[key]}`;
+          paramsStr = `?${key}=${params[key]}`;
         } else {
-          search = `${search}&${key}=${params[key]}`;
+          paramsStr = `${paramsStr}&${key}=${params[key]}`;
         }
       });
       uni.navigateTo({
-        url: '/pages/sdkView/sdkView?attributionCode=1088&assembleUrl=/material-management/api/biz/sdk/sdk',
+        url: `/pages/sdkView/sdkView${paramsStr}`,
       });
+    },
+    /**
+     * 新增收料
+     */
+    async addRebar() {
+      const attributeInfo = uni.getStorageSync('attribute-info');
+      const phoneSn = uni.getStorageSync('phoneSn');
+      const res = await request.post('/api/rebarCheck/add', {
+        attributionId: attributeInfo?.attributionId,
+        phoneSn: phoneSn,
+        checkType: this.checkType,
+        /** 实称总重 */
+        actualWeight: this.actualWeight,
+        /** 单位 */
+        weightUnit: '千克',
+        /** 收料钢筋 */
+        list: this.list,
+      });
+      this.id = res?.data;
+      this.rebarCheckFirst();
+    },
+
+    async rebarCheckFirst() {
+      if (!this.id) return;
+      const res = await request.get(`/api/rebarCheck/first/${this.id}`);
+      uni.navigateTo({
+        url:
+          this.rebarType === '1'
+            ? `/pages/addReceive/checkFirst?id=${this.id}`
+            : `/pages/addReceive/checkTrayRebar?id=${this.id}`,
+      });
+    },
+    /**
+     * 校验复核
+     */
+    handleCheck() {
+      this.addRebar();
+    },
+  },
+  watch: {
+    scanData(newValue) {
+      console.log(newValue, 'newValue');
     },
   },
 

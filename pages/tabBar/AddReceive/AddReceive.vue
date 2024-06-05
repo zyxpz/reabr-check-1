@@ -1,7 +1,7 @@
 <template>
   <view class="add-receive-page">
-    <cus-tip :tipType="1" />
-    <view class="btn-w-80">
+    <view v-if="!isHasToken"><cus-tip :tipType="1" /></view>
+    <view v-else class="btn-w-80">
       <view class="button-style" @click="() => handleToAddMaterial('1')"
         >验收混装直条钢筋</view
       >
@@ -19,7 +19,13 @@ export default {
     CusTip,
   },
   data() {
-    return {};
+    return {
+      isHasToken: false,
+    };
+  },
+  onLoad() {
+    console.log(uni.getStorageSync('cus-token'), 77);
+    this.isHasToken = uni.getStorageSync('cus-token');
   },
   methods: {
     handleToAddMaterial(type) {
@@ -32,6 +38,13 @@ export default {
 </script>
 
 <style>
+.add-receive-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+}
 .tip-content {
   padding: 64rpx 24rpx;
 }

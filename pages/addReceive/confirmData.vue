@@ -2,8 +2,12 @@
   <view class="page">
     <view class="text">请确认实收钢筋数据</view>
     <view class="content">
-      <review-type />
-      <material-amount-confirm />
+      <review-type :checkType="checkType" />
+      <material-amount-confirm
+        :checkType="checkType"
+        :detail="detail"
+        ref="confirmMaterial"
+      />
     </view>
     <uni-row class="g-flex-aic-jcsb">
       <uni-col :span="8"
@@ -22,6 +26,8 @@
 import FinallyWeight from './components/finallyWeight/finallyWeight.vue';
 import MaterialAmountConfirm from './components/materialAmountConfirm/materialAmountConfirm.vue';
 import reviewType from './components/reviewType/reviewType.vue';
+import request from '@/utils/request.js';
+
 export default {
   components: {
     FinallyWeight,
@@ -31,21 +37,52 @@ export default {
   data() {
     return {
       loading: false,
+      detail: {},
     };
   },
   methods: {
+    /**
+     * 获取详情
+     */
+    async getDetail() {
+      if (!this.id) {
+        uni.showToast({
+          title: '缺少id参数',
+          icon: 'none',
+        });
+        return;
+      }
+      const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
+      this.detail = res?.data;
+    },
     handlePrev() {
       uni.navigateTo({
         url: '/pages/addReceive/checkSecond',
       });
     },
-    handleNext() {
+    async handleNext() {
+      const list = this.$refs.confirmMaterial.materialLists.map((one) => ({
+        ...one,
+        id: undefined,
+        confirmAmount: one.children?.[0]?.confirmAmount,
+        confirmWeight: one.children?.[0]?.confirmWeight,
+      }));
+      await request.post(`/api/rebarCheck/chooseConfirm/${this.id}`, list);
       uni.navigateTo({
-        url: '/pages/addReceive/confirmCarInfos',
+        url: `/pages/addReceive/confirmCarInfos?id=${this.id}`,
       });
     },
   },
+  onLoad(options) {
+    this.id = options.id;
+    this.getDetail();
+  },
   mounted() {},
+  computed: {
+    checkType() {
+      return this.detail.checkConfirmVO?.checkType;
+    },
+  },
 };
 </script>
 <style lang="scss">

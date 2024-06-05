@@ -14,36 +14,54 @@
         >
         <uni-th width="25px" align="center">面单总量</uni-th>
         <uni-th width="25px" align="center">偏差重量</uni-th>
-        <uni-th width="15px" align="center">偏差率</uni-th>
+        <uni-th width="15px" align="center">偏差率(%)</uni-th>
         <uni-th width="10px" align="center">结果</uni-th>
       </uni-tr>
       <uni-tr
-        v-for="(item, index) in [{ name: 'HRB400φ24', amount: 12 }]"
+        v-for="(item, index) in detail?.checkReverseVO?.totalCheckVO
+          ? [detail?.checkReverseVO?.totalCheckVO]
+          : []"
         :key="index"
       >
-        <uni-td align="center">{{ item.name }}</uni-td>
+        <uni-td align="center">{{ item.actualWeight }}</uni-td>
         <uni-td align="center">
-          <view class="name">{{ item.amount }}</view>
+          <view class="name">{{ item.sendWeight }}</view>
         </uni-td>
-        <uni-td align="center">{{ item.amount1 }}</uni-td>
+        <uni-td align="center">{{ item.weightDif }}</uni-td>
         <uni-td align="center">
-          {{ item.diff }}
+          {{ item.weightRate }}
         </uni-td>
-        <uni-td align="center">
-          <uni-icons type="checkbox-filled" color="#23d923" />
+        <uni-td align="center" class="td-10vw td-result">
+          <uni-icons
+            v-show="item.weightResult === 1"
+            type="checkbox-filled"
+            color="#23d923"
+          />
+          <uni-icons
+            v-show="item.weightResult === 2"
+            type="clear"
+            color="red"
+          />
         </uni-td>
       </uni-tr>
     </uni-table>
     <view class="g-flex-aic-jcc">
       <view class="g-flex-aic-jcsa" style="width: 80%">
-        <u-cus-result type="success" text="总重偏差检验" />
+        <u-cus-result
+          :type="
+            detail?.checkReverseVO?.totalCheckVO?.weightResult === 1
+              ? 'success'
+              : 'fail'
+          "
+          text="总重偏差检验"
+        />
       </view>
     </view>
     <u-cus-gap size="16" />
     <view class="g-flex choose-content">
       <view>反向复核总重使用：</view>
       <uni-data-checkbox
-        v-model="weighType"
+        v-model="reverseWeightType"
         :localdata="weighTypeList"
         @change="handleChangeWeighType"
       ></uni-data-checkbox>
@@ -52,10 +70,11 @@
 </template>
 <script>
 export default {
+  props: ['detail'],
   data() {
     return {
       loading: false,
-      weighType: '',
+      reverseWeightType: '',
       weighTypeList: [
         { text: '实称总重', value: '1' },
         { text: '面单总重', value: '2' },
@@ -66,6 +85,17 @@ export default {
     handleChangeWeighType(e) {
       console.log(e);
       this.weighType = e.value;
+    },
+  },
+  watch: {
+    detail(newValue) {
+      this.reverseWeightType =
+        newValue?.checkReverseVO?.totalCheckVO?.reverseWeightType + '';
+      console.log(this.reverseWeightType, 888);
+      this.weighTypeList = this.weighTypeList?.map((one) => ({
+        ...one,
+        disable: newValue?.checkReverseVO?.totalCheckVO?.reverseWeightType,
+      }));
     },
   },
 };

@@ -39,41 +39,42 @@
           <view>
             <view class="header">
               <view class="g-flex">
-                <view class="title">adfhasldjkfhaskjdhf</view>
+                <view class="title">{{ item.no }}</view>
                 <image
                   src="/static/copy.svg"
                   class="icon-image"
-                  @click="() => setClipboard('adfhasldjkfhaskjdhf')"
+                  @click="() => setClipboard(item.no)"
                 />
               </view>
               <view>
                 <uni-tag
                   :inverted="true"
-                  text="已归档"
-                  type="primary"
+                  :text="item.isVerify === 2 ? '已归档' : '未归档'"
+                  :type="item.isVerify === 2 ? 'primary' : 'default'"
                   size="mini"
                   class="tag"
                 />
                 <uni-tag
                   :inverted="true"
-                  text="已推送"
-                  type="success"
+                  :text="item.pushStatus === 2 ? '已推送' : '未推送'"
+                  :type="item.pushStatus === 2 ? 'success' : 'default'"
                   size="mini"
                 />
               </view>
             </view>
             <view @click="() => handleToDetail(item)">
               <view class="body">
-                <uni-row class="material">
-                  <uni-col span="15">裸粉尴尬死的客户发空间说的话</uni-col>
-                  <uni-col span="4" class="g-text-a-r">12根</uni-col>
-                  <uni-col span="5" class="g-text-a-r">12378千克</uni-col>
-                </uni-row>
-                <uni-row class="material">
-                  <uni-col span="15">裸粉尴尬死的客户发空间说的话</uni-col>
-                  <uni-col span="4" class="g-text-a-r">12根</uni-col>
-                  <uni-col span="5" class="g-text-a-r">12378千克</uni-col>
-                </uni-row>
+                <view v-for="dt in item?.list" :key="dt.materialSpec">
+                  <uni-row class="material">
+                    <uni-col span="15">{{ dt?.materialSpec }}</uni-col>
+                    <uni-col span="4" class="g-text-a-r"
+                      >{{ dt.sendAmount }}根</uni-col
+                    >
+                    <uni-col span="5" class="g-text-a-r"
+                      >{{ dt.sendWeight }}千克</uni-col
+                    >
+                  </uni-row>
+                </view>
               </view>
               <view class="footer">
                 <uni-row class="info-item">
@@ -113,6 +114,7 @@
 <script>
 import { v4 as uuidv4 } from 'uuid';
 import DaDropdown from '@/components/da-dropdown/index.vue';
+import request from '@/utils/request.js';
 import { ref } from 'vue';
 export default {
   components: {
@@ -130,7 +132,7 @@ export default {
         {
           title: '记录状态',
           type: 'cell',
-          prop: 'god1',
+          prop: 'isVerify',
           showAll: true,
           showIcon: true,
           options: [
@@ -141,7 +143,7 @@ export default {
         {
           title: '推送状态',
           type: 'cell',
-          prop: 'god2',
+          prop: 'pushStatus',
           showAll: true,
           showIcon: true,
           options: [
@@ -149,32 +151,19 @@ export default {
             { label: '已推送', value: '2' },
           ],
         },
-        // {
-        //   title: '筛选',
-        //   type: 'slot1',
-        //   prop: 'god3',
-        // },
       ],
       /**
        * 搜索数据
        */
       searchParams: {
-        god1: '',
-        god2: '',
-        god3: '',
+        isVerify: '',
+        pushStatus: '',
       },
+      current: 1,
+      size: 10,
+      total: 0,
       searchOrder: '',
-      listData: [
-        {
-          id: uuidv4(),
-        },
-        {
-          id: uuidv4(),
-        },
-        {
-          id: uuidv4(),
-        },
-      ],
+      listData: [],
       last_id: '',
       reload: false,
       status: 'more',
@@ -188,50 +177,54 @@ export default {
   },
   onLoad() {
     this.adpid = this.$adpid;
-    this.getList();
+    this.searchParams.attributionId =
+      uni.getStorageSync('attribute-info')?.attributionId;
+    this.searchParams.consumeId = uni.getStorageSync('tenant-info')?.consumeId;
+    this.searchParams.uid = uni.getStorageSync('tenant-info')?.uid;
+
+    this.getList({
+      current: 0,
+      size: this.size,
+      ...this.searchParams,
+    });
   },
   onPullDownRefresh() {
     this.reload = true;
     this.last_id = '';
-    this.getList();
+    this.getList({
+      current: 1,
+      size: this.size,
+      ...this.searchParams,
+    });
   },
   onReachBottom() {
-    this.status = 'more';
-    this.getList();
+    if (this.total / 10 < this.current) {
+      this.status = 'noMore';
+    } else {
+      this.status = 'more';
+      this.getList({
+        current: this.current,
+        size: this.size,
+        ...this.searchParams,
+      });
+    }
   },
   methods: {
-    getList() {
-      var data = {
-        column: 'id,post_id,title,author_name,cover,published_at', //需要的字段名
-      };
+    getList(params) {
       if (this.last_id) {
         //说明已有数据，目前处于上拉加载
         this.status = 'loading';
-        data.minId = this.last_id;
-        data.time = new Date().getTime() + '';
-        data.pageSize = 10;
       }
-      uni.request({
-        url: 'https://unidemo.dcloud.net.cn/api/news',
-        data: data,
-        success: (data) => {
-          if (data.statusCode == 200) {
-            const list = data;
-            // this.listData = this.reload ? list : this.listData.concat(list);
-            // this.last_id = list[list.length - 1].id;
-            // this.reload = false;
-          }
-        },
-        fail: (data, code) => {
-          console.log('fail' + JSON.stringify(data));
-        },
-      });
-    },
-    goDetail: function (e) {
-      uni.navigateTo({
-        url:
-          '../list2detail-detail/list2detail-detail?detailDate=' +
-          encodeURIComponent(JSON.stringify(detail)),
+      request.post('/api/rebarCheck/checkList', params).then((res) => {
+        console.log(res, 'res');
+        if (res?.success) {
+          this.current++;
+          const list = res?.data?.records;
+          this.listData = this.reload ? list : this.listData.concat(list);
+          this.last_id = list[list.length - 1].id;
+          this.reload = false;
+          this.total = res?.data?.total;
+        }
       });
     },
     aderror(e) {

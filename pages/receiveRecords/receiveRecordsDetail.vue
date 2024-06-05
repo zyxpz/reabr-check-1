@@ -7,11 +7,13 @@
       lineWidth="160rpx"
     ></uv-tabs>
     <view class="content">
-      <view v-show="activeKey === 'confirm'"><confirm-detail /></view>
-      <view v-show="activeKey === 'review'" style="padding: 16rpx"
-        ><review-detail
+      <view v-show="activeKey === 'confirm'"
+        ><confirm-detail :detail="detail"
       /></view>
-      <view v-show="activeKey === 'car'"><car-detail /></view>
+      <view v-show="activeKey === 'review'" style="padding: 16rpx"
+        ><review-detail :detail="detail"
+      /></view>
+      <view v-show="activeKey === 'car'"><car-detail :detail="detail" /></view>
     </view>
   </view>
 </template>
@@ -19,6 +21,7 @@
 import ReviewDetail from './components/reviewDetail.vue';
 import ConfirmDetail from './components/confirmDetail.vue';
 import CarDetail from './components/carDetail.vue';
+import request from '@/utils/request.js';
 // import ConfirmCarInfo from '@/pages/addReceive/confirmCarInfos.vue';
 
 export default {
@@ -45,12 +48,23 @@ export default {
           key: 'car',
         },
       ],
+      id: '',
+      detail: {},
     };
+  },
+  onLoad(options) {
+    this.id = options.id;
+    console.log('detail');
+    this.getDetail();
   },
   methods: {
     handleClickTab(item) {
       console.log(item, 'item');
       this.activeKey = item.key;
+    },
+    async getDetail() {
+      const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
+      this.detail = res?.data;
     },
   },
 };

@@ -1,10 +1,10 @@
 <template>
   <view class="tab-content">
-    <delivery-node />
+    <delivery-node :detail="detail" />
     <u-cus-gap size="24" />
-    <total-weight-deviation />
+    <total-weight-deviation :detail="detail" />
     <u-cus-gap size="24" />
-    <reverse-check />
+    <reverse-check :detail="detail" />
   </view>
 </template>
 <script>
@@ -12,6 +12,7 @@ import DeliveryNode from '@/pages/addReceive/components/deliveryNote/deliveryNot
 import TotalWeightDeviation from '../../addReceive/components/totalWeightDeviation/totalWeightDeviation.vue';
 import ReverseCheck from '../../addReceive//components/reverseCheck/reverseCheck.vue';
 export default {
+  props: ['detail'],
   components: {
     DeliveryNode,
     TotalWeightDeviation,

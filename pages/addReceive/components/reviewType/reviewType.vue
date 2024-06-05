@@ -1,9 +1,14 @@
 <template>
   <view>
     <view class="title">复核模式</view>
-    <view class="des-card">实称 + 实点</view>
+    <view class="des-card">{{ checkType === 2 ? '实称 + 实点' : '实称' }}</view>
   </view>
 </template>
+<script>
+export default {
+  props: ['checkType'],
+};
+</script>
 <style lang="scss">
 .title {
   font-size: 30rpx;
