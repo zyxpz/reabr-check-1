@@ -116,12 +116,12 @@ export default {
   computed: {
     finallyWeightResult() {
       return this?.detail?.checkReverseVO?.reverseCheckVO?.every(
-        (one) => one.weightResult === '1',
+        (one) => one.weightResult === 1,
       );
     },
     finallyAmountResult() {
       return this?.detail?.checkReverseVO?.reverseCheckVO?.every(
-        (one) => one.amountResult === '1',
+        (one) => one.amountResult === 1,
       );
     },
   },

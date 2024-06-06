@@ -94,7 +94,6 @@ export default {
   watch: {
     detail(newValue) {
       this.materialLists = newValue?.checkConfirmVO?.list?.map((one) => ({
-        id: uuidv4(),
         ...one,
         children: [
           {
@@ -102,12 +101,22 @@ export default {
             key: 'account',
             amount: one.sendAmount,
             amount1: one.reverseTheoryAmount,
+            checkedType: one.confirmAmount
+              ? one.reverseTheoryAmount === one.confirmAmount
+                ? '2'
+                : '1'
+              : undefined,
           },
           {
             name: '重量（千克）',
             key: 'weight',
             amount: one.sendWeight,
             amount1: one.reverseTheoryWeight,
+            checkedType: one.confirmWeight
+              ? one.reverseTheoryWeight === one.confirmWeight
+                ? '2'
+                : '1'
+              : undefined,
           },
         ],
       }));

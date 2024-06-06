@@ -2,7 +2,7 @@
   <view class="page">
     <view class="text">请确认实收钢筋数据</view>
     <view class="content">
-      <review-type :checkType="checkType" />
+      <review-type :checkType="checkType" :detail="detail" />
       <material-amount-confirm
         :checkType="checkType"
         :detail="detail"
@@ -63,9 +63,9 @@ export default {
     async handleNext() {
       const list = this.$refs.confirmMaterial.materialLists.map((one) => ({
         ...one,
-        id: undefined,
         confirmAmount: one.children?.[0]?.confirmAmount,
-        confirmWeight: one.children?.[0]?.confirmWeight,
+        confirmWeight: one.children?.[1]?.confirmWeight,
+        children: undefined,
       }));
       await request.post(`/api/rebarCheck/chooseConfirm/${this.id}`, list);
       uni.navigateTo({

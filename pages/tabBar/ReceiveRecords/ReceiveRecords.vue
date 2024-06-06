@@ -79,11 +79,15 @@
               <view class="footer">
                 <uni-row class="info-item">
                   <uni-col span="6">收货归属方</uni-col>
-                  <uni-col span="18" class="g-text-a-r">杭州西湖二</uni-col>
+                  <uni-col span="18" class="g-text-a-r">{{
+                    item.attributionName
+                  }}</uni-col>
                 </uni-row>
                 <uni-row class="info-item">
                   <uni-col span="6">实际收货人</uni-col>
-                  <uni-col span="18" class="g-text-a-r">张三</uni-col>
+                  <uni-col span="18" class="g-text-a-r">{{
+                    item.consumeName
+                  }}</uni-col>
                 </uni-row>
                 <uni-row class="info-item">
                   <uni-col span="6">收货时间</uni-col>
@@ -183,7 +187,7 @@ export default {
     this.searchParams.uid = uni.getStorageSync('tenant-info')?.uid;
 
     this.getList({
-      current: 0,
+      current: 1,
       size: this.size,
       ...this.searchParams,
     });
@@ -198,7 +202,7 @@ export default {
     });
   },
   onReachBottom() {
-    if (this.total / 10 < this.current) {
+    if (Math.ceil(this.total / 10) < this.current) {
       this.status = 'noMore';
     } else {
       this.status = 'more';

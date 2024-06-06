@@ -91,7 +91,6 @@ export default {
     detail(newValue) {
       this.reverseWeightType =
         newValue?.checkReverseVO?.totalCheckVO?.reverseWeightType + '';
-      console.log(this.reverseWeightType, 888);
       this.weighTypeList = this.weighTypeList?.map((one) => ({
         ...one,
         disable: newValue?.checkReverseVO?.totalCheckVO?.reverseWeightType,

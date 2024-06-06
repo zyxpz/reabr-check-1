@@ -8,7 +8,7 @@
     ></uv-tabs>
     <view class="content">
       <view v-show="activeKey === 'confirm'"
-        ><confirm-detail :detail="detail"
+        ><confirm-detail :checkType="checkType" :detail="detail"
       /></view>
       <view v-show="activeKey === 'review'" style="padding: 16rpx"
         ><review-detail :detail="detail"
@@ -54,7 +54,6 @@ export default {
   },
   onLoad(options) {
     this.id = options.id;
-    console.log('detail');
     this.getDetail();
   },
   methods: {
@@ -65,6 +64,11 @@ export default {
     async getDetail() {
       const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
       this.detail = res?.data;
+    },
+  },
+  computed: {
+    checkType() {
+      return this.detail.checkConfirmVO?.checkType;
     },
   },
 };

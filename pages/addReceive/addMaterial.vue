@@ -331,6 +331,10 @@ export default {
         weightUnit: '千克',
         /** 收料钢筋 */
         list: this.list,
+        /**
+         * 是否手动输入 1 是 2 否
+         */
+        isInput: 1,
       });
       this.id = res?.data;
       this.rebarCheckFirst();

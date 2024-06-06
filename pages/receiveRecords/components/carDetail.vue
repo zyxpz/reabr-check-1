@@ -10,11 +10,13 @@
       <u-cus-gap size="24" />
       <view class="item g-flex-aic-jcsb">
         <view class="left">车牌：</view>
-        <view class="right">adsfasd</view>
+        <view class="right">{{ detail?.checkTruckVO?.truckNo }}</view>
       </view>
       <view class="item g-flex-aic-jcsb">
         <view class="left">车辆到场时间：</view>
-        <view class="right">adsfasd</view>
+        <view class="right">{{
+          detail?.checkTruckVO?.truckTime?.replace('T', ' ')
+        }}</view>
       </view>
       <view class="item g-flex-aic">
         <view class="left">车辆称重照片：</view>
@@ -25,6 +27,7 @@
             :limit="9"
             :source-type="['camera, album']"
             :readonly="true"
+            v-model="turckPics"
         /></view>
       </view>
       <view class="item g-flex-aic">
@@ -36,6 +39,7 @@
             :limit="9"
             :source-type="['camera, album']"
             :readonly="true"
+            v-model="goodsPics"
         /></view>
       </view>
       <view class="item g-flex-aic">
@@ -47,6 +51,7 @@
             :limit="9"
             :source-type="['camera, album']"
             :readonly="true"
+            v-model="sendPics"
         /></view>
       </view>
     </view>
@@ -60,11 +65,13 @@
       <u-cus-gap size="24" />
       <view class="item g-flex-aic-jcsb">
         <view class="left">验收结果：</view>
-        <view class="right">adsfasd</view>
+        <view class="right">{{
+          detail?.checkTruckVO?.checkResult === 1 ? '合格进场' : '不合格退场'
+        }}</view>
       </view>
       <view class="item g-flex-aic">
         <view class="left">验收意见：</view>
-        <view class="right">adsfasd</view>
+        <view class="right">{{ detail?.checkTruckVO?.checkRemark }}</view>
       </view>
     </view>
     <view class="card">
@@ -72,11 +79,38 @@
         ><image src="/static/position.svg" class="icon-image" />外部代码</view
       >
       <u-cus-gap size="24" />
-      <view class="item">xxcc</view>
+      <view class="item">{{ detail?.checkTruckVO?.extNo }}</view>
     </view>
   </view>
 </template>
-<script></script>
+<script>
+export default {
+  props: ['detail'],
+  computed: {
+    turckPics() {
+      return this.detail?.checkTruckVO?.truckPics?.map((one, index) => ({
+        name: `${index}.png`,
+        extname: 'png',
+        url: one,
+      }));
+    },
+    goodsPics() {
+      return this.detail?.checkTruckVO?.goodsPics?.map((one, index) => ({
+        name: `${index}.png`,
+        extname: 'png',
+        url: one,
+      }));
+    },
+    sendPics() {
+      return this.detail?.checkTruckVO?.sendPics?.map((one, index) => ({
+        name: `${index}.png`,
+        extname: 'png',
+        url: one,
+      }));
+    },
+  },
+};
+</script>
 <style>
 .card {
   background: #fff;
@@ -97,5 +131,12 @@
   padding: 12rpx 12rpx;
   color: #666;
   font-size: 26rpx;
+}
+.left {
+  width: 200rpx;
+}
+.right {
+  flex: 1;
+  text-align: right;
 }
 </style>

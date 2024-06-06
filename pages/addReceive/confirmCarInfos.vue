@@ -15,31 +15,26 @@
             />车辆及到场信息</view
           >
           <u-cus-gap size="24" />
-
           <uni-forms-item label="车牌:" name="truckNo">
             <uni-easyinput
               type="text"
               v-model="formData.truckNo"
-              placeholder="请输入姓名"
+              placeholder="请输入车牌"
               style="height: 35px"
             />
           </uni-forms-item>
-          <uni-forms-item
-            label="车辆到场时间:"
-            name="time"
-            @click="showDatetimePicker"
-          >
+          <uni-forms-item label="车辆到场时间:" name="truckTime">
             <uni-datetime-picker
-              v-model="formData.time"
+              v-model="formData.truckTime"
               type="datetime"
               @change="changeTime"
             >
               <!-- <view class="time-picker">{{ formData.time ?? '请选择' }}</view> -->
             </uni-datetime-picker>
           </uni-forms-item>
-          <uni-forms-item label="车辆称重照片:" name="gpics">
+          <uni-forms-item label="车辆称重照片:" name="truckPic">
             <uni-file-picker
-              v-model="formData.gpics"
+              v-model="formData.truckPic"
               file-mediatype="image"
               mode="grid"
               file-extname="png,jpg"
@@ -47,31 +42,32 @@
               @progress="progress"
               @success="success"
               @fail="fail"
-              @select="select"
+              @select="(e) => select(e, 'truckPic', 'truckPicTemp')"
               :source-type="['camera, album']"
+              auto-upload="false"
             />
           </uni-forms-item>
-          <uni-forms-item label="货/铭牌照片:" name="tpics">
+          <uni-forms-item label="货/铭牌照片:" name="goodsPic">
             <uni-file-picker
-              v-model="formData.tpics"
+              v-model="formData.goodsPic"
               file-mediatype="image"
               mode="grid"
               file-extname="png,jpg"
               :limit="9"
+              @select="(e) => select(e, 'goodsPic', 'goodsPicTemp')"
               @progress="progress"
               @success="success"
               @fail="fail"
-              @select="select"
               :source-type="['camera, album']"
             />
           </uni-forms-item>
           <uni-forms-item
             label="送货单照片:"
-            name="sendPics"
+            name="sendPic"
             style="margin-bottom: 0rpx"
           >
             <uni-file-picker
-              v-model="formData.sendPics"
+              v-model="formData.sendPic"
               file-mediatype="image"
               mode="grid"
               file-extname="png,jpg"
@@ -79,7 +75,7 @@
               @progress="progress"
               @success="success"
               @fail="fail"
-              @select="select"
+              @select="(e) => select(e, 'sendPic', 'sendPicTemp')"
               :source-type="['camera, album']"
             />
           </uni-forms-item>
@@ -95,22 +91,22 @@
           <uni-forms-item
             style="margin-bottom: 4rpx"
             label="验收结果:"
-            name="result"
+            name="checkResult"
           >
             <uni-data-checkbox
-              v-model="formData.result"
+              v-model="formData.checkResult"
               :localdata="checkResultLists"
             ></uni-data-checkbox>
           </uni-forms-item>
           <uni-forms-item
             label="验收意见:"
-            name="remark"
+            name="checkRemark"
             style="margin-bottom: 4rpx"
           >
             <uni-easyinput
               type="textarea"
               autoHeight
-              v-model="formData.remark"
+              v-model="formData.checkRemark"
               placeholder="请输入内容"
             ></uni-easyinput>
           </uni-forms-item>
@@ -150,6 +146,8 @@
 <script>
 import image from 'ali-oss/lib/image';
 import permision from '@/common/permission';
+import request from '@/utils/request';
+import oss from '@/utils/oss';
 // import uvDatetimePicker from '@/uni_modules/uv-datetime-picker/components/uv-datetime-picker/uv-datetime-picker.vue';
 export default {
   components: {
@@ -157,16 +155,23 @@ export default {
   },
   data() {
     return {
+      id: '',
       formData: {
         /**
          * 车牌号
          */
-        truckNo: '豫A29S6F',
+        truckNo: '',
         /**
          * 外部系统代码
          */
         extNo: '',
-        result: '1',
+        checkResult: '1',
+        truckPic: [],
+        truckPicTemp: [],
+        goodsPic: [],
+        goodsPicTemp: [],
+        sendPic: [],
+        sendPicTemp: [],
       },
       checkResultLists: [
         {
@@ -188,7 +193,7 @@ export default {
             },
           ],
         },
-        time: {
+        truckTime: {
           rules: [
             {
               required: true,
@@ -196,7 +201,7 @@ export default {
             },
           ],
         },
-        result: {
+        checkResult: {
           rules: [
             {
               required: true,
@@ -204,28 +209,10 @@ export default {
             },
           ],
         },
-        // hobby: {
-        //   rules: [
-        //     {
-        //       format: 'array',
-        //     },
-        //     {
-        //       validateFunction: function (rule, value, data, callback) {
-        //         if (value.length < 2) {
-        //           callback('请至少勾选两个兴趣爱好');
-        //         }
-        //         return true;
-        //       },
-        //     },
-        //   ],
-        // },
       },
     };
   },
   methods: {
-    showDatetimePicker() {
-      this.$refs.datetimePicker.open();
-    },
     formatter(type, value) {
       if (type === 'year') {
         return `${value}年`;
@@ -239,22 +226,21 @@ export default {
       return value;
     },
     changeTime(e) {
-      this.formData.time = e;
+      this.formData.truckTime = e;
     },
     // 获取上传状态
-    select(e) {
-      console.log('选择文件：', e);
+    select(e, type, tempType) {
+      this.formData[type] = this.formData[type]?.concat(e.tempFiles);
+      this.formData[tempType] = this.formData[tempType]?.concat(e.tempFiles);
     },
     // 获取上传进度
     progress(e) {
       console.log('上传进度：', e);
     },
-
     // 上传成功
     success(e) {
       console.log('上传成功');
     },
-
     // 上传失败
     fail(e) {
       console.log('上传失败：', e);
@@ -317,12 +303,74 @@ export default {
           console.log('err', err);
         });
     },
-    handleSave() {
-      uni.showToast({
-        title: '保存成功',
-        icon: 'success',
+    changePic(tempFiles, type) {
+      const promiseArr = [];
+      tempFiles?.forEach((one) => {
+        if (one?.file) {
+          promiseArr.push(oss(one));
+        } else {
+          promiseArr.push(oss({ file: one, blobFile: true }));
+        }
       });
+      if (promiseArr?.length) {
+        try {
+          return Promise.all(promiseArr).then((res) => {
+            console.log('上传成功，文件 URL:', res);
+            return res;
+          });
+        } catch (e) {
+          console.error('上传失败:', e);
+        }
+      }
+      return Promise.resolve([]);
     },
+    async handleSave() {
+      console.log(this.formData, 'this.formData');
+      const { truckPicTemp, goodsPicTemp, sendPicTemp, ...rest } =
+        this.formData;
+
+      /** 先上传图片 */
+      /** 车辆称重照片 */
+      const truckPic = truckPicTemp?.filter((one) =>
+        this.formData.truckPic?.find((dt) => dt.url === one.url),
+      );
+      const tempTruckPicUuid = await this.changePic(truckPic);
+      /** 货/铭牌照片 */
+      const goodsPic = goodsPicTemp?.filter((one) =>
+        this.formData.goodsPic?.find((dt) => dt.url === one.url),
+      );
+      const tempGoodsPicUuid = await this.changePic(goodsPic);
+
+      /** 送货单照片 */
+      const sendPic = sendPicTemp?.filter((one) =>
+        this.formData.sendPic?.find((dt) => dt.url === one.url),
+      );
+      const tempSendPicUuid = await this.changePic(sendPic);
+      const res = await request.post('/api/rebarCheck/truckOrPicUpdate', {
+        ...rest,
+        truckPic: tempTruckPicUuid?.join(),
+        goodsPic: tempGoodsPicUuid?.join(),
+        sendPic: tempSendPicUuid?.join(),
+        id: this.id,
+      });
+      if (res.success) {
+        uni.showToast({
+          title: '保存成功',
+          icon: 'success',
+        });
+        uni.switchTab({
+          url: '/pages/tabBar/ReceiveRecords/ReceiveRecords',
+        });
+      } else {
+        uni.showToast({
+          title: '保存失败',
+          icon: 'error',
+        });
+      }
+    },
+  },
+  onLoad(options) {
+    this.id = options.id;
   },
 };
 </script>
