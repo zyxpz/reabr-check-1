@@ -1,8 +1,8 @@
 <template>
   <view class="page">
-    <uni-notice-bar text="请在“设置”页，扫一扫绑定基石授权用户码" />
+    <!-- <uni-notice-bar text="请在“设置”页，扫一扫绑定基石授权用户码" />
     <uni-notice-bar text="用户授权码失效，请重新绑定。" />
-    <uni-notice-bar text="当前归属方未订阅此服务或订阅已到期。" />
+    <uni-notice-bar text="当前归属方未订阅此服务或订阅已到期。" /> -->
     <uni-list :border="listBorder" class="bg">
       <uni-list-item>
         <template v-slot:header>
@@ -182,17 +182,36 @@ export default {
       // 		this.systemInfo = res
       // 	}
       // })
-
+      uni.showLoading();
       const res = await request.get(`/api/common/getInfoByPhoneSn/123456789`);
+      uni.hideLoading();
       this.infosByPhoneSn = res?.data;
-      this.tenantIndex = 0;
-      this.tenantInfo = this.infosByPhoneSn?.[0];
+      const storageTenantInfo = uni.getStorageSync('tenant-info');
+      const storageAttributionInfo = uni.getStorageSync('attribute-info');
+      if (!storageTenantInfo) {
+        this.tenantIndex = 0;
+        this.tenantInfo = this.infosByPhoneSn?.[0];
+      } else {
+        this.tenantIndex = this.infosByPhoneSn?.findIndex(
+          (one) => one.uid === storageTenantInfo?.uid,
+        );
+        this.tenantInfo = this.infosByPhoneSn?.[this.tenantIndex];
+        this.attributeIndex = this.tenantInfo?.list?.findIndex(
+          (one) => (one.attributionId = storageAttributionInfo?.attributionId),
+        );
+        this.attributeInfo = this.tenantInfo?.list?.[this.attributeIndex];
+        console.log(res?.data, this.tenantIndex, this.tenantInfo, 888);
+      }
 
       // #ifdef APP-PLUS
       if (uni.getSystemInfoSync()?.platform === 'android') {
+        console.log(plus.device.uuid, 888);
         // Android 平台代码
+        // this.systemInfo = {
+        //   model: plus.device.uuid,
+        // };
         this.systemInfo = {
-          model: plus.device.uuid,
+          model: '123456789',
         };
       }
       if (uni.getSystemInfoSync().platform === 'ios') {
@@ -271,7 +290,7 @@ export default {
       this.attributeInfo = this.attributeList?.[index];
     },
   },
-  mounted() {
+  onShow() {
     // this.readFile('data.txt');
     // this.writeFile('data.txt', 'your data');
     this.getSystemInfo();
@@ -295,6 +314,8 @@ export default {
       uni.setStorageSync('tenant-info', this.tenantInfo);
       uni.setStorageSync('attribute-info', newValue);
       uni.setStorageSync('phoneSn', this.systemInfo?.model);
+      if (!this.tenantInfo?.uid || !newValue?.attributionId) return;
+      uni.showLoading();
       request
         .get(
           `/api/common/loginByPhoneSn/123456789/${this.tenantInfo?.uid}/${newValue?.attributionId}`,
@@ -303,7 +324,11 @@ export default {
           this.setCusToken(res?.data);
           uni.setStorageSync('cus-token', res?.data);
         });
+      uni.hideLoading();
     },
+  },
+  onHide() {
+    uni.hideLoading();
   },
 };
 </script>

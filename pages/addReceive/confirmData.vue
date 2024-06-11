@@ -3,6 +3,7 @@
     <view class="text">请确认实收钢筋数据</view>
     <view class="content">
       <review-type :checkType="checkType" :detail="detail" />
+      <finally-weight :detail="detail" />
       <material-amount-confirm
         :checkType="checkType"
         :detail="detail"
@@ -52,12 +53,14 @@ export default {
         });
         return;
       }
+      uni.showLoading();
       const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
+      uni.hideLoading();
       this.detail = res?.data;
     },
     handlePrev() {
-      uni.navigateTo({
-        url: '/pages/addReceive/checkSecond',
+      uni.redirectTo({
+        url: `/pages/addReceive/checkFirst?id=${this.id}`,
       });
     },
     async handleNext() {
@@ -68,7 +71,7 @@ export default {
         children: undefined,
       }));
       await request.post(`/api/rebarCheck/chooseConfirm/${this.id}`, list);
-      uni.navigateTo({
+      uni.redirectTo({
         url: `/pages/addReceive/confirmCarInfos?id=${this.id}`,
       });
     },
@@ -82,6 +85,9 @@ export default {
     checkType() {
       return this.detail.checkConfirmVO?.checkType;
     },
+  },
+  onHide() {
+    uni.hideLoading();
   },
 };
 </script>

@@ -18,7 +18,7 @@
           detail?.checkTruckVO?.truckTime?.replace('T', ' ')
         }}</view>
       </view>
-      <view class="item g-flex-aic">
+      <view class="item g-flex">
         <view class="left">车辆称重照片：</view>
         <view class="right">
           <uni-file-picker
@@ -30,7 +30,7 @@
             v-model="turckPics"
         /></view>
       </view>
-      <view class="item g-flex-aic">
+      <view class="item g-flex">
         <view class="left">货/铭牌照片：</view>
         <view class="right">
           <uni-file-picker
@@ -42,7 +42,7 @@
             v-model="goodsPics"
         /></view>
       </view>
-      <view class="item g-flex-aic">
+      <view class="item g-flex">
         <view class="left">送货单照片：</view>
         <view class="right">
           <uni-file-picker

@@ -62,7 +62,16 @@ export default {
       this.activeKey = item.key;
     },
     async getDetail() {
+      if (!this.id) {
+        uni.showToast({
+          title: '缺少id参数',
+          icon: 'none',
+        });
+        return;
+      }
+      uni.showLoading();
       const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
+      uni.hideLoading();
       this.detail = res?.data;
     },
   },

@@ -16,11 +16,21 @@
           >
           <u-cus-gap size="24" />
           <uni-forms-item label="车牌:" name="truckNo">
-            <uni-easyinput
-              type="text"
-              v-model="formData.truckNo"
-              placeholder="请输入车牌"
-              style="height: 35px"
+            <view @click="() => (plateShow = true)">
+              <uni-easyinput
+                type="text"
+                v-model="formData.truckNo"
+                placeholder="请输入车牌"
+                style="height: 35px"
+                disabled="true"
+                @focus="onFocus"
+              />
+            </view>
+            <plate-input
+              v-if="plateShow"
+              :plate="formData.truckNo"
+              @export="setPlate"
+              @close="plateShow = false"
             />
           </uni-forms-item>
           <uni-forms-item label="车辆到场时间:" name="truckTime">
@@ -44,7 +54,7 @@
               @fail="fail"
               @select="(e) => select(e, 'truckPic', 'truckPicTemp')"
               :source-type="['camera, album']"
-              auto-upload="false"
+              :auto-upload="false"
             />
           </uni-forms-item>
           <uni-forms-item label="货/铭牌照片:" name="goodsPic">
@@ -135,36 +145,45 @@
         ><button type="primary" @click="handlePrev">上一步</button></uni-col
       >
       <uni-col :span="6"
-        ><button type="warn" @click="handleDraft">暂存</button></uni-col
+        ><button type="warn" @click="() => handleSave(1)">暂存</button></uni-col
       >
       <uni-col :span="10"
-        ><button type="primary" @click="handleSave">保存并归档</button></uni-col
+        ><button type="primary" @click="() => handleSave(2)">
+          保存并归档
+        </button></uni-col
       >
     </uni-row>
   </view>
 </template>
 <script>
-import image from 'ali-oss/lib/image';
 import permision from '@/common/permission';
+import PlateInput from '../../components/uni-plate-input/uni-plate-input.vue';
 import request from '@/utils/request';
 import oss from '@/utils/oss';
-// import uvDatetimePicker from '@/uni_modules/uv-datetime-picker/components/uv-datetime-picker/uv-datetime-picker.vue';
+import moment from 'moment';
+
 export default {
   components: {
-    // uvDatetimePicker,
+    PlateInput,
   },
   data() {
     return {
       id: '',
+      plateShow: false,
       formData: {
         /**
          * 车牌号
          */
+        // truckNo: '豫A29S6F',
         truckNo: '',
         /**
          * 外部系统代码
          */
         extNo: '',
+        /**
+         * 车辆到场时间
+         */
+        truckTime: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
         checkResult: '1',
         truckPic: [],
         truckPicTemp: [],
@@ -230,8 +249,10 @@ export default {
     },
     // 获取上传状态
     select(e, type, tempType) {
-      this.formData[type] = this.formData[type]?.concat(e.tempFiles);
-      this.formData[tempType] = this.formData[tempType]?.concat(e.tempFiles);
+      this.formData[type] = (this.formData[type] ?? [])?.concat(e.tempFiles);
+      this.formData[tempType] = (this.formData[tempType] ?? [])?.concat(
+        e.tempFiles,
+      );
     },
     // 获取上传进度
     progress(e) {
@@ -245,6 +266,7 @@ export default {
     fail(e) {
       console.log('上传失败：', e);
     },
+
     /**
      * 扫一扫
      */
@@ -288,7 +310,13 @@ export default {
       return status;
     },
     handlePrev() {
-      uni.navigateBack();
+      uni.redirectTo({
+        url: `/pages/addReceive/confirmData?id=${this.id}`,
+      });
+    },
+    onFocus() {
+      this.plateShow = true;
+      uni.hideKeyBoard();
     },
     handleDraft() {
       this.$refs.baseForm
@@ -324,43 +352,177 @@ export default {
       }
       return Promise.resolve([]);
     },
-    async handleSave() {
-      console.log(this.formData, 'this.formData');
-      const { truckPicTemp, goodsPicTemp, sendPicTemp, ...rest } =
-        this.formData;
+    setPlate(plate) {
+      if (plate.length >= 7) this.formData.truckNo = plate;
+      this.plateShow = false;
+    },
+    async getDetail() {
+      uni.showLoading();
+      const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
+      uni.hideLoading();
+      const {
+        truckNo,
+        truckTime,
+        goodsPic,
+        sendPic,
+        truckPic,
+        truckPics,
+        checkRemark,
+        checkResult,
+        extNo,
+      } = res?.data?.checkTruckVO;
+      this.formData.truckNo = truckNo;
 
-      /** 先上传图片 */
-      /** 车辆称重照片 */
-      const truckPic = truckPicTemp?.filter((one) =>
-        this.formData.truckPic?.find((dt) => dt.url === one.url),
+      const tempUuidTruckPics = res?.data?.checkTruckVO?.truckPic
+        ?.split(',')
+        ?.filter((one) => one);
+
+      this.formData = {
+        truckNo,
+        truckTime: truckTime
+          ? moment(truckTime).format('YYYY-MM-DD HH:mm:ss')
+          : undefined,
+        checkRemark,
+        checkResult: checkResult + '',
+        extNo,
+        truckPic: truckPics?.map((one, index) => ({
+          name: `${tempUuidTruckPics?.[index]}.png`,
+          extname: 'png',
+          url: one,
+          uuid: tempUuidTruckPics?.[index],
+          isDetail: true,
+        })),
+        truckPicTemp: res?.data?.checkTruckVO?.truckPic
+          ?.split(',')
+          ?.filter((one) => one)
+          ?.map((one, index) => ({
+            uuid: one,
+            isDetail: true,
+            url: res?.data?.checkTruckVO?.truckPics?.[index],
+          })),
+      };
+      console.log(this.formData, ' this.formData');
+    },
+    async handleSave(isVerify) {
+      const {
+        truckPicTemp,
+        goodsPicTemp,
+        sendPicTemp,
+        truckNo,
+        truckTime,
+        ...rest
+      } = this.formData;
+
+      if (!truckNo && isVerify === 2) {
+        uni.showToast({
+          title: '车牌必填！',
+          icon: 'none',
+        });
+        return;
+      }
+
+      console.log(this.formData, 789);
+      /** 货/铭牌照片 */
+      /** 所有现在看到的图片数组， 详情的按照 uuid 区分， 非详情的按照 url获取 */
+      const truckPic = truckPicTemp.filter((one) =>
+        this.formData.truckPic?.find((dt) =>
+          one.isDetail
+            ? one.uuid === dt?.name?.split('.')?.[0]
+            : dt.url === one.url,
+        ),
       );
-      const tempTruckPicUuid = await this.changePic(truckPic);
+      /** 过滤出详情中剩余未被删除的数据 */
+      const detailTruckPic = truckPic?.filter((one) => one.isDetail);
+      /** 转换新增的数据 */
+      const tempTruckPicUuid = await this.changePic(
+        truckPic?.filter((one) => !one.isDetail),
+      );
+      /** 最终图片数据是由详情中未被删除的+新增的 */
+      const finallyTruckPicUuid = detailTruckPic
+        ?.map((one) => one.uuid)
+        ?.concat(tempTruckPicUuid);
+
       /** 货/铭牌照片 */
       const goodsPic = goodsPicTemp?.filter((one) =>
-        this.formData.goodsPic?.find((dt) => dt.url === one.url),
+        this.formData.goodsPic?.find((dt) =>
+          one.isDetail
+            ? one.uuid === dt?.name?.split('.')?.[0]
+            : dt.url === one.url,
+        ),
       );
-      const tempGoodsPicUuid = await this.changePic(goodsPic);
+
+      /** 过滤出详情中剩余未被删除的数据 */
+      const detailGoodsPic = truckPic?.filter((one) => one.isDetail);
+      /** 转换新增的数据 */
+      const tempGoodsPicUuid = await this.changePic(
+        goodsPic?.filter((one) => !one.isDetail),
+      );
+      /** 最终图片数据是由详情中未被删除的+新增的 */
+      const finallyGoodsPicUuid = detailGoodsPic
+        ?.map((one) => one.uuid)
+        ?.concat(tempGoodsPicUuid);
 
       /** 送货单照片 */
       const sendPic = sendPicTemp?.filter((one) =>
-        this.formData.sendPic?.find((dt) => dt.url === one.url),
+        this.formData.sendPic?.find((dt) =>
+          one.isDetail
+            ? one.uuid === dt?.name?.split('.')?.[0]
+            : dt.url === one.url,
+        ),
       );
-      const tempSendPicUuid = await this.changePic(sendPic);
+      /** 过滤出详情中剩余未被删除的数据 */
+      const detailSendPic = sendPic?.filter((one) => one.isDetail);
+      const tempSendPicUuid = await this.changePic(
+        sendPic?.filter((one) => !one.isDetail),
+      );
+
+      /** 最终图片数据是由详情中未被删除的+新增的 */
+      const finallySendPicUuid = detailSendPic
+        ?.map((one) => one.uuid)
+        ?.concat(tempSendPicUuid);
+      // if (!truckPic?.length) {
+      //   uni.showToast({
+      //     title: '请添加车辆称重照片！',
+      //     icon: 'none',
+      //   });
+      //   return;
+      // }
+      // if (!goodsPic?.length) {
+      //   uni.showToast({
+      //     title: '请添加货/铭牌照片！',
+      //     icon: 'none',
+      //   });
+      //   return;
+      // }
+      // if (!sendPic?.length) {
+      //   uni.showToast({
+      //     title: '请添加送货单照片！',
+      //     icon: 'none',
+      //   });
+      //   return;
+      // }
+      uni.showLoading();
       const res = await request.post('/api/rebarCheck/truckOrPicUpdate', {
         ...rest,
-        truckPic: tempTruckPicUuid?.join(),
-        goodsPic: tempGoodsPicUuid?.join(),
-        sendPic: tempSendPicUuid?.join(),
+        truckPic: finallyTruckPicUuid?.join(),
+        goodsPic: finallyGoodsPicUuid?.join(),
+        sendPic: finallySendPicUuid?.join(),
         id: this.id,
+        isVerify,
+        truckNo,
+        truckTime,
       });
+      uni.hideLoading();
       if (res.success) {
         uni.showToast({
-          title: '保存成功',
+          title: isVerify === 1 ? '暂存成功' : '保存并归档成功',
           icon: 'success',
         });
-        uni.switchTab({
-          url: '/pages/tabBar/ReceiveRecords/ReceiveRecords',
-        });
+        if (isVerify === 2) {
+          uni.switchTab({
+            url: '/pages/tabBar/ReceiveRecords/ReceiveRecords',
+          });
+        }
       } else {
         uni.showToast({
           title: '保存失败',
@@ -371,6 +533,10 @@ export default {
   },
   onLoad(options) {
     this.id = options.id;
+    this.getDetail();
+  },
+  onHide() {
+    uni.hideLoading();
   },
 };
 </script>
@@ -410,5 +576,9 @@ export default {
   align-items: center;
   color: rgb(51, 51, 51);
   padding-left: 10px;
+}
+.is-disabled {
+  color: rgb(51, 51, 51) !important;
+  background-color: #fff !important;
 }
 </style>

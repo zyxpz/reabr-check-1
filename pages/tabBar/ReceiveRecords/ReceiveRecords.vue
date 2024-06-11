@@ -7,8 +7,9 @@
       :duration="300"
       fixedTop
       ref="DaDropdownRef"
+      @confirm="handleConfirm"
     >
-      <template #slot1="{ item, index }">
+      <!-- <template #slot1="{ item, index }">
         <uni-search-bar
           style="margin: 16rpx 0"
           radius="4"
@@ -31,7 +32,7 @@
         </uni-row>
         <u-cus-gap size="36" />
         <view> </view>
-      </template>
+      </template> -->
     </DaDropdown>
     <view class="list-container">
       <view class="uni-list">
@@ -66,11 +67,11 @@
               <view class="body">
                 <view v-for="dt in item?.list" :key="dt.materialSpec">
                   <uni-row class="material">
-                    <uni-col span="15">{{ dt?.materialSpec }}</uni-col>
-                    <uni-col span="4" class="g-text-a-r"
+                    <uni-col :span="15">{{ dt?.materialSpec }}</uni-col>
+                    <uni-col :span="4" class="g-text-a-r"
                       >{{ dt.sendAmount }}根</uni-col
                     >
-                    <uni-col span="5" class="g-text-a-r"
+                    <uni-col :span="5" class="g-text-a-r"
                       >{{ dt.sendWeight }}千克</uni-col
                     >
                   </uni-row>
@@ -78,20 +79,20 @@
               </view>
               <view class="footer">
                 <uni-row class="info-item">
-                  <uni-col span="6">收货归属方</uni-col>
-                  <uni-col span="18" class="g-text-a-r">{{
+                  <uni-col :span="6">收货归属方</uni-col>
+                  <uni-col :span="18" class="g-text-a-r">{{
                     item.attributionName
                   }}</uni-col>
                 </uni-row>
                 <uni-row class="info-item">
-                  <uni-col span="6">实际收货人</uni-col>
-                  <uni-col span="18" class="g-text-a-r">{{
+                  <uni-col :span="6">实际收货人</uni-col>
+                  <uni-col :span="18" class="g-text-a-r">{{
                     item.consumeName
                   }}</uni-col>
                 </uni-row>
                 <uni-row class="info-item">
-                  <uni-col span="6">收货时间</uni-col>
-                  <uni-col span="18" class="g-text-a-r"
+                  <uni-col :span="6">收货时间</uni-col>
+                  <uni-col :span="18" class="g-text-a-r"
                     >2018-10-05 12:12:12</uni-col
                   >
                 </uni-row>
@@ -116,7 +117,6 @@
 </template>
 
 <script>
-import { v4 as uuidv4 } from 'uuid';
 import DaDropdown from '@/components/da-dropdown/index.vue';
 import request from '@/utils/request.js';
 import { ref } from 'vue';
@@ -130,8 +130,7 @@ export default {
         {
           title: '搜索',
           type: 'search',
-          prop: 'god0',
-          // value: '哈哈哈', // 默认内容 哈哈哈
+          prop: 'no',
         },
         {
           title: '记录状态',
@@ -170,7 +169,7 @@ export default {
       listData: [],
       last_id: '',
       reload: false,
-      status: 'more',
+      status: 'nomore',
       adpid: '',
       contentText: {
         contentdown: '上拉加载更多',
@@ -179,13 +178,16 @@ export default {
       },
     };
   },
-  onLoad() {
+  onLoad() {},
+  onShow() {
     this.adpid = this.$adpid;
+    this.reload = true;
+    this.last_id = '';
     this.searchParams.attributionId =
       uni.getStorageSync('attribute-info')?.attributionId;
     this.searchParams.consumeId = uni.getStorageSync('tenant-info')?.consumeId;
     this.searchParams.uid = uni.getStorageSync('tenant-info')?.uid;
-
+    console.log(this.searchParams, 888999);
     this.getList({
       current: 1,
       size: this.size,
@@ -220,14 +222,16 @@ export default {
         this.status = 'loading';
       }
       request.post('/api/rebarCheck/checkList', params).then((res) => {
-        console.log(res, 'res');
         if (res?.success) {
           this.current++;
           const list = res?.data?.records;
-          this.listData = this.reload ? list : this.listData.concat(list);
-          this.last_id = list[list.length - 1].id;
+          this.listData = this.reload ? list : this.listData?.concat(list);
+          this.last_id = list[list.length - 1]?.id;
           this.reload = false;
           this.total = res?.data?.total;
+          if (this.total < this.size) {
+            this.status = 'noMore';
+          }
         }
       });
     },
@@ -239,16 +243,12 @@ export default {
     },
     handleConfirm(value, data) {
       console.log(value, data, 888);
-      this.searchParams = data;
+      this.searchParams = {
+        ...this.searchParams,
+        ...value,
+      };
     },
-    handleSearchOrderConfirm(e) {
-      this.searchParams.god3 = this.$refs.searchOrderRef?.searchVal;
-      // 操作完成后关闭弹窗
-      this.$refs.DaDropdownRef?.handlePopupMask();
-    },
-    handleCancel() {
-      this.$refs.searchOrderRef?.clear();
-    },
+
     /**
      * 复制
      */
@@ -287,13 +287,62 @@ export default {
       }
     },
     /**
+     * 获取详情
+     */
+    async getDetail() {
+      this.detail = res?.data;
+      console.log(this.detail, 'this.detail');
+    },
+    /**
      * 跳转到详情
      */
-    handleToDetail(item) {
-      uni.navigateTo({
-        url: `/pages/receiveRecords/receiveRecordsDetail?id=${item.id}`,
+    async handleToDetail(item) {
+      if (item.isVerify === 2) {
+        /** 已归档的跳转到详情 */
+        uni.navigateTo({
+          url: `/pages/receiveRecords/receiveRecordsDetail?id=${item.id}`,
+        });
+      } else {
+        /** 未归档的需要跳转到相应的编辑页面 */
+        const res = await request.get(`/api/rebarCheck/checkDetail/${item.id}`);
+        const { checkConfirmVO, checkReverseVO, checkTruckVO } =
+          res?.data ?? {};
+        /** 没有反向复核 */
+        if (!checkConfirmVO.reverseWeightType) {
+          uni.navigateTo({
+            url: `/pages/addReceive/checkFirst?id=${item.id}`,
+          });
+        }
+        /** 判断是否进行到确认数据 */
+        const isConfirmed = checkConfirmVO?.list?.every(
+          (one) =>
+            one.hasOwnProperty('confirmAmount') &&
+            one.hasOwnProperty('confirmWeight'),
+        );
+        if (checkConfirmVO.reverseWeightType) {
+          uni.navigateTo({
+            url: isConfirmed
+              ? `/pages/addReceive/confirmCarInfos?id=${item.id}`
+              : `/pages/addReceive/confirmData?id=${item.id}`,
+          });
+        }
+      }
+    },
+  },
+  watch: {
+    searchParams(newValue) {
+      this.reload = true;
+      this.last_id = '';
+      this.current = 1;
+      this.getList({
+        current: 1,
+        size: this.size,
+        ...newValue,
       });
     },
+  },
+  onHide() {
+    uni.hideLoading();
   },
 };
 </script>

@@ -10,7 +10,11 @@
     >
       <uni-tr>
         <uni-th width="30px" align="center">
-          <view class="word-break">实称总重(手动录入)</view></uni-th
+          <view class="word-break"
+            >实称总重<text v-if="detail?.checkReverseVO?.totalCheckVO?.isInput"
+              >(手动录入)</text
+            ></view
+          ></uni-th
         >
         <uni-th width="25px" align="center">面单总量</uni-th>
         <uni-th width="25px" align="center">偏差重量</uni-th>

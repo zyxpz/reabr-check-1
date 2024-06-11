@@ -176,8 +176,8 @@
     "devServer": {
       "proxy": {
         "/api": {
-          // "target": "https://zz-test05.pinming.org/material-client-management",
-          "target": "http://172.16.11.138:8080",
+          "target": "https://zz-test05.pinming.org/material-client-management",
+          // "target": "http://192.168.1.160:8080",
           "changeOrigin": true
         }
       }

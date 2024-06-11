@@ -50,28 +50,33 @@ export default {
      */
     async handleNext() {
       if (!this.reverseWeightType) {
-        console.log(this.$refs.childComp.reverseWeightType, 88);
         const reverseWeightType = this.$refs.childComp.reverseWeightType;
+        if (!reverseWeightType || reverseWeightType === 'undefined') {
+          uni.showToast({
+            title: '请选择反向复核总重使用类型',
+            icon: 'none',
+          });
+          return;
+        }
+        uni.showLoading();
         await request.get(
           `/api/rebarCheck/reverseWeightType/${this.id}/${reverseWeightType}`,
         );
         await request.get(`/api/rebarCheck/second/${this.id}`);
+        uni.showLoading();
         this.getDetail();
       } else {
-        uni.navigateTo({
+        uni.redirectTo({
           url: `/pages/addReceive/confirmData?id=${this.id}`,
         });
       }
-      // uni.navigateTo({
-      //   url: '/pages/addReceive/checkThird',
-      // });
     },
     /**
      * 修改运单数据
      */
     handleChangeOriginData() {
-      uni.navigateTo({
-        url: '/pages/addReceive/addMaterial',
+      uni.redirectTo({
+        url: `/pages/addReceive/addMaterial?id=${this.id}&rebarType=${this.detail?.checkReverseVO?.totalCheckVO?.checkType}`,
       });
     },
     /**
@@ -86,7 +91,9 @@ export default {
      * 获取详情
      */
     async getDetail() {
+      uni.showLoading();
       const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
+      uni.hideLoading();
       this.detail = res?.data;
       console.log(this.detail, 'this.detail');
     },
@@ -107,6 +114,9 @@ export default {
     reverseWeightType() {
       return this.detail?.checkReverseVO?.totalCheckVO?.reverseWeightType;
     },
+  },
+  onHide() {
+    uni.hideLoading();
   },
 };
 </script>

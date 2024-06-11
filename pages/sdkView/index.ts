@@ -44,7 +44,7 @@ export default class Test {
     Object.keys(urlParams).forEach((key, index) => {
       if (!index) {
         /* 预发环境 */
-        search = `https://zhuang.pinming.cn/material-sdk-h5/#/?${key}=${urlParams[key]}`;
+        search = `https://zz-test05.pinming.org/material-sdk-h5/#/?${key}=${urlParams[key]}`;
         /** 测试环境 */
         // search = `${window.location.origin}/material-sdk-h5/#/?${key}=${urlParams[key]}`;
         /** 本地 */

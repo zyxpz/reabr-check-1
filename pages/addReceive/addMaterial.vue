@@ -27,6 +27,7 @@
               type="number"
               placeholder="请输入"
               @input="(e) => changeTotalWeight(e)"
+              :disabled="!inputEnable"
             />
             <text>千克</text>
           </view>
@@ -122,6 +123,7 @@
       :visible="visible"
       @confirm="handleCategoryConfirm"
       @cancel="visible = false"
+      :rebarType="rebarType"
     />
   </view>
 </template>
@@ -171,9 +173,13 @@ export default {
        */
       actualWeight: '',
       /**
+       * 是否允许手动输入
+       */
+      inputEnable: true,
+      /**
        * 是否手动输入
        */
-      isHandle: false,
+      isInput: 2,
       /**
        * 弹窗显示状态
        */
@@ -214,6 +220,7 @@ export default {
       lenArr: ['6', '9', '13'],
       /** 收料 id */
       id: '',
+      detail: {},
     };
   },
   methods: {
@@ -228,7 +235,7 @@ export default {
      */
     changeTotalWeight(e) {
       this.actualWeight = e;
-      this.isHandle = true;
+      this.isInput = 1;
     },
     /**
      * 选择钢筋规格型号回调
@@ -262,7 +269,6 @@ export default {
      * 点击长度 tag
      */
     handleLengthTag(text, cusId) {
-      console.log(text, cusId);
       this.list = this.list?.map((one) => {
         return {
           ...one,
@@ -296,11 +302,13 @@ export default {
      */
     handleScan() {
       const params = {
-        attributionCode: 1088,
+        attributionCode: uni.getStorageSync('attribute-info')?.code,
         // assembleUrl: 'http://weighmaster.pinming.cn/material-client-management/api/receiptRecycle/assemble',
         assembleUrl:
-          'https://zz-test05.pinming.org/material-client-management/api/receiptRecycle/assemble',
+          'https://zz-test05.pinming.org/material-client-management/api/common/check/assemble',
         warning4Url: getWarning4Url(),
+        appKey: uni.getStorageSync('tenant-info')?.appKey,
+        appSecretKey: uni.getStorageSync('tenant-info')?.appSecretKey,
       };
       let paramsStr = '';
       Object.keys(params).forEach((key, index) => {
@@ -321,29 +329,42 @@ export default {
     async addRebar() {
       const attributeInfo = uni.getStorageSync('attribute-info');
       const phoneSn = uni.getStorageSync('phoneSn');
-      const res = await request.post('/api/rebarCheck/add', {
+      const params = {
         attributionId: attributeInfo?.attributionId,
         phoneSn: phoneSn,
-        checkType: this.checkType,
+        checkType: this.rebarType === '1' ? this.checkType : undefined,
         /** 实称总重 */
         actualWeight: this.actualWeight,
         /** 单位 */
         weightUnit: '千克',
         /** 收料钢筋 */
-        list: this.list,
+        list: this.list?.map((one) => {
+          const { count, cusId, extCode, id, ...rest } = one;
+          return {
+            ...rest,
+            materialId: id,
+          };
+        }),
         /**
          * 是否手动输入 1 是 2 否
          */
-        isInput: 1,
-      });
-      this.id = res?.data;
+        isInput: this.isInput,
+        id: this.id,
+      };
+      const requestFun = this.id
+        ? request.post('/api/rebarCheck/complexUpdate', params)
+        : request.post('/api/rebarCheck/add', params);
+      const res = await requestFun;
+      if (!this.id) {
+        this.id = res?.data;
+      }
       this.rebarCheckFirst();
     },
 
     async rebarCheckFirst() {
       if (!this.id) return;
       const res = await request.get(`/api/rebarCheck/first/${this.id}`);
-      uni.navigateTo({
+      uni.redirectTo({
         url:
           this.rebarType === '1'
             ? `/pages/addReceive/checkFirst?id=${this.id}`
@@ -356,15 +377,58 @@ export default {
     handleCheck() {
       this.addRebar();
     },
+    async getDetail(newValue) {
+      if (!newValue) return;
+      uni.showLoading();
+      const res = await request.get(`/api/rebarCheck/checkDetail/${newValue}`);
+      uni.hideLoading();
+      this.detail = res?.data;
+      console.log(this.detail, 'this.detail');
+    },
+    async inputEnableFun() {
+      const res = await request.get(
+        `/api/app/extShow/inputEnable/${
+          uni.getStorageSync('tenant-info')?.uid
+        }`,
+      );
+      this.inputEnable = res?.data?.isInputEnable === 1 ? true : false;
+      console.log(res, 'res');
+    },
   },
   watch: {
     scanData(newValue) {
+      this.isInput = 2;
+      const { GrossWeighValue, ValueUnit, TareWeighValue } = newValue ?? {};
+      const diff = GrossWeighValue - TareWeighValue;
+      this.actualWeight =
+        Math.floor(
+          (ValueUnit === '千克' ? diff : diff * 1000)?.toFixed(2) * 100,
+        ) / 100;
       console.log(newValue, 'newValue');
+    },
+    id(newValue) {
+      this.getDetail(newValue);
+    },
+    detail(newValue) {
+      if (newValue?.checkReverseVO) {
+        this.list = newValue?.checkConfirmVO?.list?.map((one) => ({
+          ...one,
+          cusId: uuidv4(),
+        }));
+        this.actualWeight =
+          newValue?.checkReverseVO?.totalCheckVO?.actualWeight;
+        this.isInput = newValue?.checkReverseVO?.totalCheckVO?.isInput;
+        this.checkType = newValue?.checkReverseVO?.totalCheckVO?.checkType;
+      }
     },
   },
 
   onLoad(options) {
     this.rebarType = options.rebarType;
+    this.id = options.id;
+  },
+  onShow() {
+    this.inputEnableFun();
   },
 };
 </script>

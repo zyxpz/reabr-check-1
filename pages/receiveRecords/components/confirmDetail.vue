@@ -1,6 +1,7 @@
 <template>
   <view>
     <review-type :checkType="checkType" :detail="detail" />
+    <finally-weight :detail="detail" />
     <material-amount-confirm
       :readOnly="Boolean(true)"
       :checkType="checkType"
@@ -9,14 +10,16 @@
   </view>
 </template>
 <script>
-import reviewType from '@/pages/addReceive/components/reviewType/reviewType.vue';
+import ReviewType from '@/pages/addReceive/components/reviewType/reviewType.vue';
+import FinallyWeight from '@/pages/addReceive/components/finallyWeight/finallyWeight.vue';
 import MaterialAmountConfirm from '@/pages/addReceive/components/materialAmountConfirm/materialAmountConfirm.vue';
 
 export default {
   props: ['checkType', 'detail'],
   components: {
-    reviewType,
+    ReviewType,
     MaterialAmountConfirm,
+    FinallyWeight,
   },
   data() {
     return {};

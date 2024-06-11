@@ -106,6 +106,7 @@ export default {
                 ? '2'
                 : '1'
               : undefined,
+            confirmAmount: one.confirmAmount,
           },
           {
             name: '重量（千克）',
@@ -117,6 +118,7 @@ export default {
                 ? '2'
                 : '1'
               : undefined,
+            confirmWeight: one.confirmWeight,
           },
         ],
       }));

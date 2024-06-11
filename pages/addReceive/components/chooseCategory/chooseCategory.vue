@@ -18,11 +18,7 @@
         </uni-row>
         <view class="popup-content">
           <view class="categroy-content">
-            <uni-row
-              class="item"
-              v-for="item in materialList"
-              :key="item.materialId"
-            >
+            <uni-row class="item" v-for="item in materialList" :key="item.id">
               <uni-col :span="18">
                 <view class="name"
                   >{{ item.materialName }}/{{ item.materialSpec }}</view
@@ -61,16 +57,17 @@
   </view>
 </template>
 <script>
-import { materialList } from '../../../../common/constants';
+// import { materialList } from '../../../../common/constants';
+import request from '@/utils/request';
 
 export default {
-  props: ['visible'],
+  props: ['visible', 'rebarType'],
   data() {
     return {
       /**
        * 钢筋规格型号
        */
-      materialList,
+      materialList: [],
     };
   },
   methods: {
@@ -101,14 +98,14 @@ export default {
     },
     decrease(item) {
       this.materialList.forEach((one) => {
-        if (one.materialId === item.materialId) {
+        if (one.id === item.id) {
           one.count--;
         }
       });
     },
     increase(item) {
       this.materialList.forEach((one) => {
-        if (one.materialId === item.materialId) {
+        if (one.id === item.id) {
           one.count++;
         }
       });
@@ -116,7 +113,7 @@ export default {
     updateCount(e, item) {
       console.log(e, 'ee');
       this.materialList.forEach((one) => {
-        if (one.materialId === item.materialId) {
+        if (one.id === item.id) {
           one.count = Number(e.detail.value);
         }
       });
@@ -127,7 +124,18 @@ export default {
     /**
      * 获取钢筋列表数据
      */
-    async getMaterialList() {},
+    async getMaterialList() {
+      uni.showLoading();
+      const res = await request.get(`/api/rebarCheck/rebarMaterialList`, {
+        type: this.rebarType,
+      });
+      uni.hideLoading();
+
+      this.materialList = res?.data?.map((one) => ({
+        ...one,
+        count: 0,
+      }));
+    },
   },
 
   watch: {
