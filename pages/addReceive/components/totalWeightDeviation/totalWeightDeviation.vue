@@ -37,15 +37,11 @@
         </uni-td>
         <uni-td align="center" class="td-10vw td-result">
           <uni-icons
-            v-show="item.weightResult === 1"
+            v-if="item.weightResult === 1"
             type="checkbox-filled"
             color="#23d923"
           />
-          <uni-icons
-            v-show="item.weightResult === 2"
-            type="clear"
-            color="red"
-          />
+          <uni-icons v-if="item.weightResult === 2" type="clear" color="red" />
         </uni-td>
       </uni-tr>
     </uni-table>

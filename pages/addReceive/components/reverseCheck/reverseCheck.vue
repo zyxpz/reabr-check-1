@@ -30,12 +30,12 @@
           </uni-td>
           <uni-td align="center">
             <uni-icons
-              v-show="item.amountResult === 1"
+              v-if="item.amountResult === 1"
               type="checkbox-filled"
               color="#23d923"
             />
             <uni-icons
-              v-show="item.amountResult === 2"
+              v-if="item.amountResult === 2"
               type="clear"
               color="red"
             />
@@ -81,12 +81,12 @@
           </uni-td>
           <uni-td align="center">
             <uni-icons
-              v-show="item.weightResult === 1"
+              v-if="item.weightResult === 1"
               type="checkbox-filled"
               color="#23d923"
             />
             <uni-icons
-              v-show="item.weightResult === 2"
+              v-if="item.weightResult === 2"
               type="clear"
               color="red"
             />
