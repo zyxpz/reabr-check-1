@@ -145,10 +145,16 @@
         ><button type="primary" @click="handlePrev">上一步</button></uni-col
       >
       <uni-col :span="6"
-        ><button type="warn" @click="() => handleSave(1)">暂存</button></uni-col
+        ><button :loading="loading" type="warn" @click="() => handleSave(1)">
+          暂存
+        </button></uni-col
       >
       <uni-col :span="10"
-        ><button type="primary" @click="() => handleSave(2)">
+        ><button
+          :loading="saveLoading"
+          type="primary"
+          @click="() => handleSave(2)"
+        >
           保存并归档
         </button></uni-col
       >
@@ -170,6 +176,14 @@ export default {
     return {
       id: '',
       plateShow: false,
+      /**
+       * 暂存 loading
+       */
+      loading: false,
+      /**
+       * 保存 loading
+       */
+      saveLoading: false,
       formData: {
         /**
          * 车牌号
@@ -229,6 +243,7 @@ export default {
           ],
         },
       },
+      detail: {},
     };
   },
   methods: {
@@ -310,9 +325,16 @@ export default {
       return status;
     },
     handlePrev() {
-      uni.redirectTo({
-        url: `/pages/addReceive/confirmData?id=${this.id}`,
-      });
+      if (this.detail?.checkConfirmVO?.type === 1) {
+        uni.redirectTo({
+          url: `/pages/addReceive/confirmData?id=${this.id}`,
+        });
+      }
+      if (this.detail?.checkConfirmVO?.type === 2) {
+        uni.redirectTo({
+          url: `/pages/addReceive/checkTrayRebar?id=${this.id}`,
+        });
+      }
     },
     onFocus() {
       this.plateShow = true;
@@ -360,6 +382,7 @@ export default {
       uni.showLoading();
       const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
       uni.hideLoading();
+      this.detail = res?.data;
       const {
         truckNo,
         truckTime,
@@ -421,7 +444,6 @@ export default {
         return;
       }
 
-      console.log(this.formData, 789);
       /** 货/铭牌照片 */
       /** 所有现在看到的图片数组， 详情的按照 uuid 区分， 非详情的按照 url获取 */
       const truckPic = truckPicTemp.filter((one) =>
@@ -502,32 +524,47 @@ export default {
       //   return;
       // }
       uni.showLoading();
-      const res = await request.post('/api/rebarCheck/truckOrPicUpdate', {
-        ...rest,
-        truckPic: finallyTruckPicUuid?.join(),
-        goodsPic: finallyGoodsPicUuid?.join(),
-        sendPic: finallySendPicUuid?.join(),
-        id: this.id,
-        isVerify,
-        truckNo,
-        truckTime,
-      });
-      uni.hideLoading();
-      if (res.success) {
-        uni.showToast({
-          title: isVerify === 1 ? '暂存成功' : '保存并归档成功',
-          icon: 'success',
+      if (isVerify === 1) {
+        this.loading = true;
+      } else {
+        this.saveLoading = true;
+      }
+      try {
+        const res = await request.post('/api/rebarCheck/truckOrPicUpdate', {
+          ...rest,
+          truckPic: finallyTruckPicUuid?.join(),
+          goodsPic: finallyGoodsPicUuid?.join(),
+          sendPic: finallySendPicUuid?.join(),
+          id: this.id,
+          isVerify,
+          truckNo,
+          truckTime,
         });
-        if (isVerify === 2) {
-          uni.switchTab({
-            url: '/pages/tabBar/ReceiveRecords/ReceiveRecords',
+        uni.hideLoading();
+        this.loading = false;
+        if (res.success) {
+          uni.showToast({
+            title: isVerify === 1 ? '暂存成功' : '保存并归档成功',
+            icon: 'success',
+          });
+          if (isVerify === 2) {
+            uni.switchTab({
+              url: '/pages/tabBar/ReceiveRecords/ReceiveRecords',
+            });
+          }
+        } else {
+          uni.showToast({
+            title: '保存失败',
+            icon: 'error',
           });
         }
-      } else {
-        uni.showToast({
-          title: '保存失败',
-          icon: 'error',
-        });
+      } catch (error) {
+        uni.hideLoading();
+        if (isVerify === 1) {
+          this.loading = false;
+        } else {
+          this.saveLoading = false;
+        }
       }
     },
   },

@@ -15,7 +15,9 @@
           :key="index"
         >
           <uni-td align="center"
-            ><view>{{ item.materialSpec }}</view></uni-td
+            ><view>{{
+              item?.materialName + '/' + item.materialSpec
+            }}</view></uni-td
           >
           <uni-td align="center">
             <view>{{ item.sendAmount }}</view>
@@ -53,7 +55,9 @@
           :key="index"
         >
           <uni-td align="center"
-            ><view>{{ item.materialSpec }}</view></uni-td
+            ><view>{{
+              item?.materialName + '/' + item.materialSpec
+            }}</view></uni-td
           >
           <uni-td align="center">
             <view>{{ item.sendWeight }}</view>

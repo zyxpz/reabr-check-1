@@ -67,7 +67,9 @@
               <view class="body">
                 <view v-for="dt in item?.list" :key="dt.materialSpec">
                   <uni-row class="material">
-                    <uni-col :span="15">{{ dt?.materialSpec }}</uni-col>
+                    <uni-col :span="15">{{
+                      dt?.materialName + '/' + dt?.materialSpec
+                    }}</uni-col>
                     <uni-col :span="4" class="g-text-a-r"
                       >{{ dt.sendAmount }}根</uni-col
                     >
@@ -90,11 +92,11 @@
                     item.consumeName
                   }}</uni-col>
                 </uni-row>
-                <uni-row class="info-item">
+                <uni-row class="info-item" v-if="truckTime">
                   <uni-col :span="6">收货时间</uni-col>
-                  <uni-col :span="18" class="g-text-a-r"
-                    >2018-10-05 12:12:12</uni-col
-                  >
+                  <uni-col :span="18" class="g-text-a-r">{{
+                    truckTime ? truckTime?.replace('T', '') : ''
+                  }}</uni-col>
                 </uni-row>
               </view>
             </view>
@@ -136,9 +138,10 @@ export default {
           title: '记录状态',
           type: 'cell',
           prop: 'isVerify',
-          showAll: true,
+          showAll: false,
           showIcon: true,
           options: [
+            { label: '全部', value: '' },
             { label: '未归档', value: '1' },
             { label: '已归档', value: '2' },
           ],
@@ -147,9 +150,10 @@ export default {
           title: '推送状态',
           type: 'cell',
           prop: 'pushStatus',
-          showAll: true,
+          showAll: false,
           showIcon: true,
           options: [
+            { label: '全部', value: '1' },
             { label: '未推送', value: '1' },
             { label: '已推送', value: '2' },
           ],
@@ -307,24 +311,41 @@ export default {
         const res = await request.get(`/api/rebarCheck/checkDetail/${item.id}`);
         const { checkConfirmVO, checkReverseVO, checkTruckVO } =
           res?.data ?? {};
-        /** 没有反向复核 */
-        if (!checkConfirmVO.reverseWeightType) {
-          uni.navigateTo({
-            url: `/pages/addReceive/checkFirst?id=${item.id}`,
-          });
+        /** 盘螺 */
+        if (item.type === 2) {
+          /** 如何判断走到哪一步？ */
+          /** 没有反向复核 */
+          if (!checkConfirmVO.reverseWeightType) {
+            uni.navigateTo({
+              url: `/pages/addReceive/checkTrayRebar?id=${item.id}`,
+            });
+          } else {
+            uni.navigateTo({
+              url: `/pages/addReceive/confirmCarInfos?id=${item.id}`,
+            });
+          }
         }
-        /** 判断是否进行到确认数据 */
-        const isConfirmed = checkConfirmVO?.list?.every(
-          (one) =>
-            one.hasOwnProperty('confirmAmount') &&
-            one.hasOwnProperty('confirmWeight'),
-        );
-        if (checkConfirmVO.reverseWeightType) {
-          uni.navigateTo({
-            url: isConfirmed
-              ? `/pages/addReceive/confirmCarInfos?id=${item.id}`
-              : `/pages/addReceive/confirmData?id=${item.id}`,
-          });
+        /** 直螺 */
+        if (item.type === 1) {
+          /** 没有反向复核 */
+          if (!checkConfirmVO.reverseWeightType) {
+            uni.navigateTo({
+              url: `/pages/addReceive/checkFirst?id=${item.id}`,
+            });
+          }
+          /** 判断是否进行到确认数据 */
+          const isConfirmed = checkConfirmVO?.list?.every(
+            (one) =>
+              one.hasOwnProperty('confirmAmount') &&
+              one.hasOwnProperty('confirmWeight'),
+          );
+          if (checkConfirmVO.reverseWeightType) {
+            uni.navigateTo({
+              url: isConfirmed
+                ? `/pages/addReceive/confirmCarInfos?id=${item.id}`
+                : `/pages/addReceive/confirmData?id=${item.id}`,
+            });
+          }
         }
       }
     },

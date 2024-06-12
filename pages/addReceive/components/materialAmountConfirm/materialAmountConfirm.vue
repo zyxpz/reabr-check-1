@@ -10,7 +10,9 @@
       <uni-tr>
         <uni-th width="15px" align="center"> 维度</uni-th>
         <uni-th width="25px" align="center">送货单</uni-th>
-        <uni-th width="25px" align="center">复核结果</uni-th>
+        <uni-th width="25px" align="center"
+          >复核结果<view v-if="checkType === 2">(实点)</view></uni-th
+        >
       </uni-tr>
       <uni-tr v-for="(item, index) in dt?.children" :key="index">
         <uni-td align="center">{{ item.name }}</uni-td>

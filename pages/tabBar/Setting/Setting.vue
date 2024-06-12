@@ -177,13 +177,16 @@ export default {
     },
 
     async getSystemInfo() {
-      // uni.getSystemInfo({
-      // 	success: (res) => {
-      // 		this.systemInfo = res
-      // 	}
-      // })
+      //    uni.getSystemInfo({
+      //    	success: (res) => {
+      // console.log(res, 'res')
+      //    		this.systemInfo = res
+      //    	}
+      //    })
       uni.showLoading();
-      const res = await request.get(`/api/common/getInfoByPhoneSn/123456789`);
+      const res = await request.get(
+        `/api/common/getInfoByPhoneSn/a8da73764917e978`,
+      );
       uni.hideLoading();
       this.infosByPhoneSn = res?.data;
       const storageTenantInfo = uni.getStorageSync('tenant-info');
@@ -205,19 +208,16 @@ export default {
 
       // #ifdef APP-PLUS
       if (uni.getSystemInfoSync()?.platform === 'android') {
-        console.log(plus.device.uuid, 888);
+        console.log(plus.device.uuid, 'uuid');
         // Android 平台代码
-        // this.systemInfo = {
-        //   model: plus.device.uuid,
-        // };
         this.systemInfo = {
-          model: '123456789',
+          model: plus.device.uuid,
         };
       }
       if (uni.getSystemInfoSync().platform === 'ios') {
-        this.systemInfo = {
-          model: '123456789',
-        };
+        // this.systemInfo = {
+        //   model: '123456789',
+        // };
         // testModule.getDeviceIDCallback((ret) => {
         //   uni.showToast({
         //     title: '调用方法 uuid ' + ret,
@@ -229,7 +229,7 @@ export default {
       }
       // #endif
       this.systemInfo = {
-        model: '123456789',
+        model: 'a8da73764917e978',
       };
     },
 
@@ -318,7 +318,7 @@ export default {
       uni.showLoading();
       request
         .get(
-          `/api/common/loginByPhoneSn/123456789/${this.tenantInfo?.uid}/${newValue?.attributionId}`,
+          `/api/common/loginByPhoneSn/${this.systemInfo?.model}/${this.tenantInfo?.uid}/${newValue?.attributionId}`,
         )
         .then((res) => {
           this.setCusToken(res?.data);

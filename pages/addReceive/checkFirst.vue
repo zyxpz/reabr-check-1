@@ -76,7 +76,7 @@ export default {
      */
     handleChangeOriginData() {
       uni.redirectTo({
-        url: `/pages/addReceive/addMaterial?id=${this.id}&rebarType=${this.detail?.checkReverseVO?.totalCheckVO?.checkType}`,
+        url: `/pages/addReceive/addMaterial?id=${this.id}&rebarType=${this.detail?.checkConfirmVO?.type}`,
       });
     },
     /**

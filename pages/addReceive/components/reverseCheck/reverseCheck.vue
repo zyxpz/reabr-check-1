@@ -20,7 +20,9 @@
           v-for="(item, index) in detail?.checkReverseVO?.reverseCheckVO ?? []"
           :key="index"
         >
-          <uni-td align="center">{{ item.materialSpec }}</uni-td>
+          <uni-td align="center">{{
+            item?.materialName + '/' + item.materialSpec
+          }}</uni-td>
           <uni-td align="center">
             <view class="name">{{ item.sendAmount }}</view>
           </uni-td>
@@ -71,7 +73,9 @@
           v-for="(item, index) in detail?.checkReverseVO?.reverseCheckVO ?? []"
           :key="index"
         >
-          <uni-td align="center">{{ item.materialSpec }}</uni-td>
+          <uni-td align="center">{{
+            item?.materialName + '/' + item.materialSpec
+          }}</uni-td>
           <uni-td align="center">
             <view class="name">{{ item.sendWeight }}</view>
           </uni-td>

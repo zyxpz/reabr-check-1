@@ -29,7 +29,7 @@
               @input="(e) => changeTotalWeight(e)"
               :disabled="!inputEnable"
             />
-            <text>千克</text>
+            <view>千克</view>
           </view>
           <view class="g-a" @click="handleScan">扫码获取</view>
         </view>
@@ -38,10 +38,12 @@
     <view class="items-container">
       <view v-for="item in list" class="item">
         <view class="g-flex-aic-jcsb item-header">
-          <text class="item-sepc"
-            >{{ item.materialName }}/{{ item.materialSpec }}</text
+          <view class="item-sepc"
+            >{{ item.materialName }}/{{ item.materialSpec }}</view
           >
-          <text class="g-a" @click="() => handleRemove(item.cusId)">移除</text>
+          <view class="g-a item-del" @click="() => handleRemove(item.cusId)"
+            >移除</view
+          >
         </view>
         <text>送货单数量</text>
         <u-cus-gap size="16" />
@@ -78,7 +80,7 @@
                 @input="(e) => changeInput(e, item.cusId, 'sendAmount')"
               />
             </view>
-            <text>根</text>
+            <view>根</view>
           </view>
           <view v-show="checkType === 2" class="item-content-row">
             <view class="item-content-row-title">实点根数：</view>
@@ -91,21 +93,23 @@
                 @input="(e) => changeInput(e, item.cusId, 'actualAmount')"
               />
             </view>
-            <text>根</text>
+            <view>根</view>
           </view>
         </view>
-        <view class="item-content-row">
-          <view class="item-content-row-title">送货重量：</view>
-          <view class="other-input">
-            <uni-easyinput
-              errorMessage
-              v-model="item.sendWeight"
-              type="number"
-              placeholder="请输入"
-              @input="(e) => changeInput(e, item.cusId, 'sendWeight')"
-            />
+        <view>
+          <view class="item-content-row">
+            <view class="item-content-row-title">送货重量：</view>
+            <view class="other-input">
+              <uni-easyinput
+                errorMessage
+                v-model="item.sendWeight"
+                type="number"
+                placeholder="请输入"
+                @input="(e) => changeInput(e, item.cusId, 'sendWeight')"
+              />
+            </view>
+            <view>千克</view>
           </view>
-          <text>千克</text>
         </view>
       </view>
     </view>
@@ -358,17 +362,20 @@ export default {
       if (!this.id) {
         this.id = res?.data;
       }
-      this.rebarCheckFirst();
+      if (this.rebarType === 1) {
+        this.rebarCheckFirst();
+      } else {
+        uni.redirectTo({
+          url: `/pages/addReceive/checkTrayRebar?id=${this.id}`,
+        });
+      }
     },
 
     async rebarCheckFirst() {
       if (!this.id) return;
       const res = await request.get(`/api/rebarCheck/first/${this.id}`);
       uni.redirectTo({
-        url:
-          this.rebarType === '1'
-            ? `/pages/addReceive/checkFirst?id=${this.id}`
-            : `/pages/addReceive/checkTrayRebar?id=${this.id}`,
+        url: `/pages/addReceive/checkFirst?id=${this.id}`,
       });
     },
     /**
@@ -479,10 +486,20 @@ export default {
 }
 .item-sepc {
   font-size: 28rpx;
+  word-break: break-all;
+  flex: 1;
+}
+
+.item-del {
+  flex-shrink: 0;
+  word-break: break-all;
+  width: 80rpx;
+  text-align: right;
 }
 
 .item-content-row-title {
   // width: 220rpx
+  flex-shrink: 0;
 }
 
 .total-input {
