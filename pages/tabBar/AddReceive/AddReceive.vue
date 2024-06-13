@@ -23,9 +23,8 @@ export default {
       isHasToken: false,
     };
   },
-  onLoad() {
-    console.log(uni.getStorageSync('cus-token'), 77);
-    this.isHasToken = uni.getStorageSync('cus-token');
+  onShow() {
+    this.isHasToken = uni.getStorageSync('tenant-info');
   },
   methods: {
     handleToAddMaterial(type) {

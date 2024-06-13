@@ -1,7 +1,10 @@
 <template>
   <view class="page">
-    <!-- <uni-notice-bar text="请在“设置”页，扫一扫绑定基石授权用户码" />
-    <uni-notice-bar text="用户授权码失效，请重新绑定。" />
+    <uni-notice-bar
+      v-if="!tenantInfo"
+      text="请在“设置”页，复制设备码到基石进行用户码授权"
+    />
+    <!-- <uni-notice-bar text="用户授权码失效，请重新绑定。" />
     <uni-notice-bar text="当前归属方未订阅此服务或订阅已到期。" /> -->
     <uni-list :border="listBorder" class="bg">
       <uni-list-item>
@@ -27,7 +30,7 @@
         </template>
         <template v-slot:body>
           <text class="slot-box slot-text" ref="attribute">{{
-            tenantInfo.userName
+            tenantInfo?.userName
           }}</text>
         </template>
         <template v-slot:footer>
@@ -49,7 +52,7 @@
         </template>
         <template v-slot:body>
           <text class="slot-box slot-text" ref="attribute">{{
-            attributeInfo.name
+            attributeInfo?.name
           }}</text>
         </template>
         <template v-slot:footer>
@@ -71,7 +74,7 @@
         </template>
         <template v-slot:body>
           <text class="slot-box slot-text" ref="attribute">{{
-            tenantInfo.consumeName
+            tenantInfo?.consumeName
           }}</text>
         </template>
       </uni-list-item>
@@ -82,6 +85,7 @@
 <script>
 import request from '@/utils/request';
 import { mapState, mapMutations, mapActions } from 'vuex';
+import { cloneDeep } from 'lodash';
 // var testModule = uni.requireNativePlugin('Univalsoft-DeviceId');
 export default {
   data() {
@@ -97,7 +101,7 @@ export default {
       /**
        * 租户信息
        */
-      tenantInfo: {},
+      tenantInfo: null,
       tenantIndex: 0,
       /**
        * 归属方信息
@@ -177,12 +181,6 @@ export default {
     },
 
     async getSystemInfo() {
-      //    uni.getSystemInfo({
-      //    	success: (res) => {
-      // console.log(res, 'res')
-      //    		this.systemInfo = res
-      //    	}
-      //    })
       uni.showLoading();
       const res = await request.get(
         `/api/common/getInfoByPhoneSn/a8da73764917e978`,
@@ -190,20 +188,25 @@ export default {
       uni.hideLoading();
       this.infosByPhoneSn = res?.data;
       const storageTenantInfo = uni.getStorageSync('tenant-info');
-      const storageAttributionInfo = uni.getStorageSync('attribute-info');
       if (!storageTenantInfo) {
+        /** 如果没有缓存，直接取第一个 */
         this.tenantIndex = 0;
-        this.tenantInfo = this.infosByPhoneSn?.[0];
+        this.tenantInfo = res?.data?.[0];
       } else {
-        this.tenantIndex = this.infosByPhoneSn?.findIndex(
-          (one) => one.uid === storageTenantInfo?.uid,
-        );
-        this.tenantInfo = this.infosByPhoneSn?.[this.tenantIndex];
-        this.attributeIndex = this.tenantInfo?.list?.findIndex(
-          (one) => (one.attributionId = storageAttributionInfo?.attributionId),
-        );
-        this.attributeInfo = this.tenantInfo?.list?.[this.attributeIndex];
-        console.log(res?.data, this.tenantIndex, this.tenantInfo, 888);
+        /**
+         * 判断缓存是否在租户列表里
+         */
+        if (res?.data?.find((one) => one.uid === storageTenantInfo?.uid)) {
+          const tenantIndex = res?.data?.findIndex(
+            (one) => one.uid === storageTenantInfo?.uid,
+          );
+          const tenantInfo = cloneDeep(res?.data?.[tenantIndex]);
+          this.tenantIndex = tenantIndex;
+          this.tenantInfo = tenantInfo;
+        } else {
+          this.tenantIndex = 0;
+          this.tenantInfo = res?.data?.[0];
+        }
       }
 
       // #ifdef APP-PLUS
@@ -296,24 +299,36 @@ export default {
     this.getSystemInfo();
   },
   watch: {
-    tenantInfo(newValue) {
-      this.attributeList = this.infosByPhoneSn?.find(
-        (one) => one.uid === newValue?.uid,
-      )?.list;
-      this.attributeIndex = 0;
-      this.attributeInfo = this.attributeList?.[0];
+    tenantInfo(newValue, pre) {
+      console.log(newValue, 'newvalue');
+      this.attributeList = newValue?.list;
+      /** 如果租户变了，清空归属方缓存 */
+      if (newValue?.uid === pre?.uid) {
+        const storageAttributionInfo = uni.getStorageSync('attribute-info');
+        /** 如果租户相同，但是归属方不在归属方列表，需要清空缓存 */
+        if (
+          !newValue?.list?.find(
+            (one) =>
+              one.attributionId === storageAttributionInfo?.attributionId,
+          )
+        ) {
+          uni.setStorageSync('attribute-info', null);
+        }
+      } else {
+        uni.setStorageSync('attribute-info', null);
+      }
+      uni.setStorageSync('tenant-info', newValue);
+    },
+    attributeList(newValue) {
+      const storageAttributionInfo = uni.getStorageSync('attribute-info');
+      const tempIndex = newValue?.findIndex(
+        (one) => one.attributionId === storageAttributionInfo?.attributionId,
+      );
+      this.attributeIndex = tempIndex >= 0 ? tempIndex : 0;
+      this.attributeInfo = newValue?.[this.attributeIndex];
     },
     attributeInfo(newValue) {
-      // this.setUserInfo({
-      //   /** 选中的租户 */
-      //   tenantInfo: this.tenantInfo,
-      //   /** 选中的归属方 */
-      //   attributeInfo: newValue,
-      //   phoneSn: this.systemInfo?.model,
-      // });
-      uni.setStorageSync('tenant-info', this.tenantInfo);
       uni.setStorageSync('attribute-info', newValue);
-      uni.setStorageSync('phoneSn', this.systemInfo?.model);
       if (!this.tenantInfo?.uid || !newValue?.attributionId) return;
       uni.showLoading();
       request

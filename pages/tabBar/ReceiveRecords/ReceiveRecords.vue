@@ -1,15 +1,17 @@
 <template>
   <view>
-    <DaDropdown
-      :dropdownMenu="dropdownMenuList"
-      themeColor="#007aff"
-      textColor="#333333"
-      :duration="300"
-      fixedTop
-      ref="DaDropdownRef"
-      @confirm="handleConfirm"
-    >
-      <!-- <template #slot1="{ item, index }">
+    <view v-if="!isHasToken" class="cus-content"><cus-tip :tipType="1" /></view>
+    <view v-if="isHasToken">
+      <DaDropdown
+        :dropdownMenu="dropdownMenuList"
+        themeColor="#007aff"
+        textColor="#333333"
+        :duration="300"
+        fixedTop
+        ref="DaDropdownRef"
+        @confirm="handleConfirm"
+      >
+        <!-- <template #slot1="{ item, index }">
         <uni-search-bar
           style="margin: 16rpx 0"
           radius="4"
@@ -33,101 +35,99 @@
         <u-cus-gap size="36" />
         <view> </view>
       </template> -->
-    </DaDropdown>
-    <view class="list-container">
-      <view class="uni-list">
-        <view v-for="(item, index) in listData" :key="index" class="item">
-          <view>
-            <view class="header">
-              <view class="g-flex">
-                <view class="title">{{ item.no }}</view>
-                <image
-                  src="/static/copy.svg"
-                  class="icon-image"
-                  @click="() => setClipboard(item.no)"
-                />
+      </DaDropdown>
+      <view class="list-container">
+        <view class="uni-list">
+          <view v-for="(item, index) in listData" :key="index" class="item">
+            <view>
+              <view class="header">
+                <view class="g-flex">
+                  <view class="title">{{ item.no }}</view>
+                  <image
+                    src="/static/copy.svg"
+                    class="icon-image"
+                    @click="() => setClipboard(item.no)"
+                  />
+                </view>
+                <view>
+                  <uni-tag
+                    :inverted="true"
+                    :text="item.isVerify === 2 ? '已归档' : '未归档'"
+                    :type="item.isVerify === 2 ? 'primary' : 'default'"
+                    size="mini"
+                    class="tag"
+                  />
+                  <uni-tag
+                    :inverted="true"
+                    :text="item.pushStatus === 2 ? '已推送' : '未推送'"
+                    :type="item.pushStatus === 2 ? 'success' : 'default'"
+                    size="mini"
+                  />
+                </view>
               </view>
-              <view>
-                <uni-tag
-                  :inverted="true"
-                  :text="item.isVerify === 2 ? '已归档' : '未归档'"
-                  :type="item.isVerify === 2 ? 'primary' : 'default'"
-                  size="mini"
-                  class="tag"
-                />
-                <uni-tag
-                  :inverted="true"
-                  :text="item.pushStatus === 2 ? '已推送' : '未推送'"
-                  :type="item.pushStatus === 2 ? 'success' : 'default'"
-                  size="mini"
-                />
-              </view>
-            </view>
-            <view @click="() => handleToDetail(item)">
-              <view class="body">
-                <view v-for="dt in item?.list" :key="dt.materialSpec">
-                  <uni-row class="material">
-                    <uni-col :span="15">{{
-                      dt?.materialName + '/' + dt?.materialSpec
+              <view @click="() => handleToDetail(item)">
+                <view class="body">
+                  <view v-for="dt in item?.list" :key="dt.materialSpec">
+                    <uni-row class="material">
+                      <uni-col :span="15">{{
+                        dt?.materialName + '/' + dt?.materialSpec
+                      }}</uni-col>
+                      <uni-col :span="4" class="g-text-a-r"
+                        >{{ dt.sendAmount }}根</uni-col
+                      >
+                      <uni-col :span="5" class="g-text-a-r"
+                        >{{ dt.sendWeight }}千克</uni-col
+                      >
+                    </uni-row>
+                  </view>
+                </view>
+                <view class="footer">
+                  <uni-row class="info-item">
+                    <uni-col :span="6">收货归属方</uni-col>
+                    <uni-col :span="18" class="g-text-a-r">{{
+                      item.attributionName
                     }}</uni-col>
-                    <uni-col :span="4" class="g-text-a-r"
-                      >{{ dt.sendAmount }}根</uni-col
-                    >
-                    <uni-col :span="5" class="g-text-a-r"
-                      >{{ dt.sendWeight }}千克</uni-col
-                    >
+                  </uni-row>
+                  <uni-row class="info-item">
+                    <uni-col :span="6">实际收货人</uni-col>
+                    <uni-col :span="18" class="g-text-a-r">{{
+                      item.consumeName
+                    }}</uni-col>
+                  </uni-row>
+                  <uni-row class="info-item" v-if="truckTime">
+                    <uni-col :span="6">收货时间</uni-col>
+                    <uni-col :span="18" class="g-text-a-r">{{
+                      truckTime ? truckTime?.replace('T', '') : ''
+                    }}</uni-col>
                   </uni-row>
                 </view>
               </view>
-              <view class="footer">
-                <uni-row class="info-item">
-                  <uni-col :span="6">收货归属方</uni-col>
-                  <uni-col :span="18" class="g-text-a-r">{{
-                    item.attributionName
-                  }}</uni-col>
-                </uni-row>
-                <uni-row class="info-item">
-                  <uni-col :span="6">实际收货人</uni-col>
-                  <uni-col :span="18" class="g-text-a-r">{{
-                    item.consumeName
-                  }}</uni-col>
-                </uni-row>
-                <uni-row class="info-item" v-if="truckTime">
-                  <uni-col :span="6">收货时间</uni-col>
-                  <uni-col :span="18" class="g-text-a-r">{{
-                    truckTime ? truckTime?.replace('T', '') : ''
-                  }}</uni-col>
-                </uni-row>
-              </view>
             </view>
           </view>
-          <!-- #ifdef APP-PLUS -->
-          <view class="ad-view" v-if="index > 0 && (index + 1) % 10 == 0">
-            <ad :adpid="adpid" @error="aderror"></ad>
-          </view>
-          <!-- #endif -->
         </view>
       </view>
+      <uni-load-more
+        :status="status"
+        :icon-size="16"
+        :content-text="contentText"
+      />
     </view>
-
-    <uni-load-more
-      :status="status"
-      :icon-size="16"
-      :content-text="contentText"
-    />
   </view>
 </template>
 
 <script>
 import DaDropdown from '@/components/da-dropdown/index.vue';
+import CusTip from '@/components/cus-tip';
 import request from '@/utils/request.js';
-import { ref } from 'vue';
+
 export default {
   components: {
     DaDropdown,
+    CusTip,
   },
   data() {
     return {
+      isHasToken: false,
       dropdownMenuList: [
         {
           title: '搜索',
@@ -174,7 +174,6 @@ export default {
       last_id: '',
       reload: false,
       status: 'nomore',
-      adpid: '',
       contentText: {
         contentdown: '上拉加载更多',
         contentrefresh: '加载中',
@@ -184,7 +183,7 @@ export default {
   },
   onLoad() {},
   onShow() {
-    this.adpid = this.$adpid;
+    this.isHasToken = uni.getStorageSync('tenant-info');
     this.reload = true;
     this.last_id = '';
     this.searchParams.attributionId =
@@ -369,6 +368,17 @@ export default {
 </script>
 
 <style>
+.cus-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+}
+.tip-content {
+  padding: 64rpx 24rpx;
+}
+
 .list-container {
   margin: 12rpx;
 }

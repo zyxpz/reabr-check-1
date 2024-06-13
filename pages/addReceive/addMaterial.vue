@@ -343,10 +343,10 @@ export default {
         weightUnit: '千克',
         /** 收料钢筋 */
         list: this.list?.map((one) => {
-          const { count, cusId, extCode, id, ...rest } = one;
+          const { count, cusId, extCode, id, materialId, ...rest } = one;
           return {
             ...rest,
-            materialId: id,
+            materialId: materialId ?? id,
           };
         }),
         /**

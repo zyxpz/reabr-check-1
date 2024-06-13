@@ -22,7 +22,6 @@
                 v-model="formData.truckNo"
                 placeholder="请输入车牌"
                 style="height: 35px"
-                disabled="true"
                 @focus="onFocus"
               />
             </view>

@@ -71,6 +71,9 @@ export default {
       }
       uni.showLoading();
       const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
+      if (res?.data?.checkConfirmVO?.type === 2) {
+        this.tabs = this.tabs?.filter((one) => one.key !== 'review');
+      }
       uni.hideLoading();
       this.detail = res?.data;
     },

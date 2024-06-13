@@ -6,7 +6,6 @@
 const BASE_URL = '';
 // 创建一个通用的请求函数
 const request = (url, method, data, header = {}) => {
-  console.log(url, 'url');
   const Authentication =
     url?.includes('/api/common/getInfoByPhoneSn') ||
     url?.includes('/api/common/loginByPhoneSn')

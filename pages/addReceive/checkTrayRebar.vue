@@ -1,66 +1,6 @@
 <template>
   <view class="page">
-    <view class="card">
-      <view class="title">总重偏差（千克）</view>
-      <uni-table ref="table" border emptyText="暂无数据">
-        <uni-tr>
-          <uni-th width="30px" align="center"> 实称总重</uni-th>
-          <uni-th width="25px" align="center">面单总重</uni-th>
-          <uni-th width="25px" align="center">偏差重量</uni-th>
-          <uni-th width="10px" align="center">偏差率</uni-th>
-          <uni-th width="10px" align="center">结果</uni-th>
-        </uni-tr>
-        <uni-tr v-for="(item, index) in dataSource" :key="index">
-          <uni-td
-            align="center"
-            :style="
-              item.reverseWeightType === 1 ? 'background-color: #28fb28' : ''
-            "
-            @click="() => handleTd(1)"
-            >{{ item.actualWeight }}</uni-td
-          >
-          <uni-td
-            :style="
-              item.reverseWeightType === 2 ? 'background-color: #28fb28' : ''
-            "
-            align="center"
-            @click="() => handleTd(2)"
-          >
-            <view class="name">{{ item.sendWeight }}</view>
-          </uni-td>
-          <uni-td align="center">{{ item.weightDif }}</uni-td>
-          <uni-td align="center">
-            {{ item.weightRate }}
-          </uni-td>
-          <uni-td align="center" class="td-10vw td-result">
-            <uni-icons
-              v-if="item.weightResult === 1"
-              type="checkbox-filled"
-              color="#23d923"
-            />
-            <uni-icons
-              v-if="item.weightResult === 2"
-              type="clear"
-              color="red"
-            />
-          </uni-td>
-        </uni-tr>
-      </uni-table>
-      <u-cus-gap size="20" />
-      <u-cus-result
-        :type="
-          detail?.checkReverseVO?.totalCheckVO?.weightResult === 1
-            ? 'success'
-            : 'fail'
-        "
-        text="总重偏差检验"
-      />
-      <u-cus-gap size="30" />
-      <view>
-        <text>数量确认：</text>
-        <text>{{ dataSource?.[0]?.confirmWeight ?? '-' }} 千克 </text>
-      </view>
-    </view>
+    <tray-rebar ref="childComp" :detail="detail" />
     <uni-row class="g-flex-aic-jcsb">
       <uni-col :span="9"
         ><button type="primary" @click="handleChangeOriginData">
@@ -80,8 +20,12 @@
 </template>
 <script>
 import request from '@/utils/request';
+import TrayRebar from './components/trayRebar/trayRebar.vue';
 
 export default {
+  components: {
+    TrayRebar,
+  },
   data() {
     return {
       detail: {},
@@ -123,7 +67,8 @@ export default {
      */
     async handleNext() {
       /** 如果没有说明是新增 */
-      const reverseWeightType = this.dataSource?.[0]?.reverseWeightType;
+      const reverseWeightType =
+        this.$refs.childComp?.dataSource?.[0]?.reverseWeightType;
       if (!reverseWeightType) {
         uni.showToast({
           title: '请点选使用的复核总重',
@@ -131,7 +76,6 @@ export default {
         });
         return;
       } else {
-        console.log(reverseWeightType, 'reverseWeightType');
         uni.showLoading();
         await request.get(
           `/api/rebarCheck/reverseWeightType/${this.id}/${reverseWeightType}`,
