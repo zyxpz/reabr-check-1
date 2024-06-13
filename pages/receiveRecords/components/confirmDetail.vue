@@ -1,8 +1,8 @@
 <template>
-  <view v-if="detail?.checkConfirmVO?.type === 2">
+  <view v-show="detail?.checkConfirmVO?.type === 2">
     <tray-rebar :detail="detail" :readOnly="readOnly" />
   </view>
-  <view v-if="detail?.checkConfirmVO?.type === 1">
+  <view v-show="detail?.checkConfirmVO?.type === 1">
     <review-type :checkType="checkType" :detail="detail" />
     <finally-weight :detail="detail" />
     <material-amount-confirm

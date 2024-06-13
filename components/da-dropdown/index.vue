@@ -1,61 +1,97 @@
 <template>
-  <view class="da-dropdown" :class="{'is-fixed': fixedTop, 'has-search': hasSearch}" :style="dropdownStyle">
+  <view
+    class="da-dropdown"
+    :class="{ 'is-fixed': fixedTop, 'has-search': hasSearch }"
+    :style="dropdownStyle"
+  >
     <!-- 搜索 -->
-    <view class="da-dropdown-search" v-if="hasSearch" @touchmove.stop.prevent="handleMove">
+    <view
+      class="da-dropdown-search"
+      v-if="hasSearch"
+      @touchmove.stop.prevent="handleMove"
+    >
       <input
         class="da-dropdown-search-input"
         :value="searchItem.value"
         @input="handleSearchChange"
         :placeholder="searchItem.placeholder || '请输入'"
         @confirm="handleSearch"
-        confirm-type="search" />
+        confirm-type="search"
+      />
+      <view
+        class="uni-icon"
+        style="position: absolute; right: 60px; font-size: 18px; color: #c2c2c2"
+        v-if="!!searchItem.value"
+        @click="searchItem.value = ''"
+        >&#xe434;</view
+      >
       <button class="da-dropdown-search-btn" @click="handleSearch">搜索</button>
     </view>
     <!-- 菜单 -->
     <view class="da-dropdown-menu" @touchmove.stop.prevent="handleMove">
       <view
         class="da-dropdown-menu-item"
-        :class="{'is-hidden':item.isHidden === 'true'}"
+        :class="{ 'is-hidden': item.isHidden === 'true' }"
         v-for="(item, index) in menuList"
         :key="index"
-        @click="handleMenuClick(index,item)">
-        <text class="da-dropdown-menu-item--text" :class="item.isActived ? 'is-actived' : ''">{{ item.title }}</text>
+        @click="handleMenuClick(index, item)"
+      >
+        <text
+          class="da-dropdown-menu-item--text"
+          :class="item.isActived ? 'is-actived' : ''"
+          >{{ item.title }}</text
+        >
         <view class="da-dropdown-menu-item--icon" v-if="item.showArrow">
           <text v-if="item.isLoading" class="is--loading"></text>
           <text v-else-if="item.isClick" class="is--arrup"></text>
           <text v-else class="is--arrdown"></text>
         </view>
-        <view class="da-dropdown-menu-item--sort" v-else-if="item.showSort" :class="'is--' + item.value"></view>
+        <view
+          class="da-dropdown-menu-item--sort"
+          v-else-if="item.showSort"
+          :class="'is--' + item.value"
+        ></view>
       </view>
     </view>
     <!-- 弹出 -->
-    <view class="da-dropdown-content" :class="{'is-show': isShow,'is-visible': isVisible}">
+    <view
+      class="da-dropdown-content"
+      :class="{ 'is-show': isShow, 'is-visible': isVisible }"
+    >
       <view class="da-dropdown-content-popup" :class="isShow ? 'is-show' : ''">
-        <view class="da-dropdown-popup-box" v-for="(item, index) in menuList" :key="index">
+        <view
+          class="da-dropdown-popup-box"
+          v-for="(item, index) in menuList"
+          :key="index"
+        >
           <!-- 下拉列表 -->
           <DropdownCell
             v-if="item.type === 'cell' && index === currentIndex"
             :dropdownItem="item"
             :dropdownIndex="index"
-            @success="handleCellSelect"></DropdownCell>
+            @success="handleCellSelect"
+          ></DropdownCell>
           <!-- 多条件筛选 -->
           <DropdownFilter
             v-if="item.type === 'filter' && index === currentIndex"
             :dropdownItem="item"
             :dropdownIndex="index"
-            @success="handleFilterConfirm"></DropdownFilter>
+            @success="handleFilterConfirm"
+          ></DropdownFilter>
           <!-- 级联选择 -->
           <DropdownPicker
             v-if="item.type === 'picker' && index === currentIndex"
             :dropdownItem="item"
             :dropdownIndex="index"
-            @success="handlePickerConfirm" />
+            @success="handlePickerConfirm"
+          />
           <!-- 日期范围 -->
           <DropdownDaterange
             v-if="item.type === 'daterange' && index === currentIndex"
             :dropdownItem="item"
             :dropdownIndex="index"
-            @success="handleDaterangeConfirm" />
+            @success="handleDaterangeConfirm"
+          />
           <!-- 弹窗插槽拓展X5 -->
           <template v-if="item.type === 'slot1' && index === currentIndex">
             <slot name="slot1" :item="item" :index="index"></slot>
@@ -78,23 +114,34 @@
         class="da-dropdown-content-mask"
         v-if="fixedTop"
         @tap="handlePopupMask"
-        @touchmove.stop.prevent="handleMove" />
+        @touchmove.stop.prevent="handleMove"
+      />
     </view>
     <view class="da-dropdown--blank" v-if="fixedTop"></view>
   </view>
 </template>
 
 <script>
-import { defineComponent, ref, computed, onMounted } from 'vue'
+import { defineComponent, ref, computed, onMounted } from 'vue';
 
-import { deepClone, menuInitOpts, getValueByKey, checkDataField } from './utils'
-import DropdownPicker from './components/picker.vue'
-import DropdownCell from './components/cell.vue'
-import DropdownFilter from './components/filter.vue'
-import DropdownDaterange from './components/daterange.vue'
+import {
+  deepClone,
+  menuInitOpts,
+  getValueByKey,
+  checkDataField,
+} from './utils';
+import DropdownPicker from './components/picker.vue';
+import DropdownCell from './components/cell.vue';
+import DropdownFilter from './components/filter.vue';
+import DropdownDaterange from './components/daterange.vue';
 
 export default defineComponent({
-  components: { DropdownPicker, DropdownCell, DropdownFilter, DropdownDaterange },
+  components: {
+    DropdownPicker,
+    DropdownCell,
+    DropdownFilter,
+    DropdownDaterange,
+  },
   props: {
     /**
      * 导航菜单数据
@@ -149,12 +196,12 @@ export default defineComponent({
   },
   emits: ['open', 'close', 'confirm'],
   setup(props, { emit }) {
-    const currentIndex = ref(-1)
-    const isVisible = ref(false)
-    const isShow = ref(false)
-    const menuList = ref([])
-    const hasSearch = ref(false)
-    const searchItem = ref(null)
+    const currentIndex = ref(-1);
+    const isVisible = ref(false);
+    const isShow = ref(false);
+    const menuList = ref([]);
+    const hasSearch = ref(false);
+    const searchItem = ref(null);
 
     // 主题样式
     const dropdownStyle = computed(() => {
@@ -164,49 +211,61 @@ export default defineComponent({
         --dropdown-background-color: ${props.bgColor};
         --dropdown-popup-duration: ${props.duration / 1000}s;
         --dropdown-fixed-top: ${props.fixedTopValue || 0}px;
-      `
-    })
+      `;
+    });
     /**
      * 初始化数据
      */
     async function initData() {
-      const newMenu = deepClone(props.dropdownMenu || [])
-      const allItem = { label: '不限', value: '-9999' }
+      const newMenu = deepClone(props.dropdownMenu || []);
+      const allItem = { label: '不限', value: '-9999' };
       if (!newMenu || newMenu.length === 0) {
-        menuList.value = []
-        return
+        menuList.value = [];
+        return;
       }
 
       for (let i = 0; i < newMenu.length; i++) {
-        let item = newMenu[i]
+        let item = newMenu[i];
         if (item?.type) {
-          item = { ...(menuInitOpts[newMenu[i]['type']] || {}), ...item }
+          item = { ...(menuInitOpts[newMenu[i]['type']] || {}), ...item };
         }
 
         // 处理异步初始项
         if (typeof item.syncDataFn === 'function') {
-          item.isLoading = true
-          item.syncDataFn(item, i).then((res) => {
-            menuList.value[i].options = checkDataField(item.syncDataKey ? getValueByKey(res, item.syncDataKey) : res, item.field)
-            // 处理 不限 项
-            if (this.menuList[i].showAll) {
-              if (this.menuList[i].options.findIndex((k) => k.value === allItem.value) === -1) {
-                this.menuList[i].options.unshift(allItem)
+          item.isLoading = true;
+          item
+            .syncDataFn(item, i)
+            .then((res) => {
+              menuList.value[i].options = checkDataField(
+                item.syncDataKey ? getValueByKey(res, item.syncDataKey) : res,
+                item.field,
+              );
+              // 处理 不限 项
+              if (this.menuList[i].showAll) {
+                if (
+                  this.menuList[i].options.findIndex(
+                    (k) => k.value === allItem.value,
+                  ) === -1
+                ) {
+                  this.menuList[i].options.unshift(allItem);
+                }
               }
-            }
-            menuList.value[i].isLoading = false
-          }).catch(() => {
-            menuList.value[i].isLoading = false
-          })
+              menuList.value[i].isLoading = false;
+            })
+            .catch(() => {
+              menuList.value[i].isLoading = false;
+            });
         }
 
         if (item.options?.length) {
           // 同步差异字段
-          item.options = checkDataField(item.options, item.field)
+          item.options = checkDataField(item.options, item.field);
           // 处理 不限 项
           if (item.showAll) {
-            if (item.options.findIndex((k) => k.value === allItem.value) === -1) {
-              item.options.unshift(allItem)
+            if (
+              item.options.findIndex((k) => k.value === allItem.value) === -1
+            ) {
+              item.options.unshift(allItem);
             }
           }
         }
@@ -214,56 +273,55 @@ export default defineComponent({
         // 处理已选项
         if (typeof item.value !== 'undefined') {
           switch (item.type) {
-          case 'cell':
-            for (let x = 0; x < item.options.length; x++) {
-              const k = item.options[x]
-              if (k.value === item.value) {
-                item.isActived = true
-                break
+            case 'cell':
+              for (let x = 0; x < item.options.length; x++) {
+                const k = item.options[x];
+                if (k.value === item.value) {
+                  item.isActived = true;
+                  break;
+                }
               }
-            }
-            break
-          case 'click':
-            item.isActived = item.value === true
+              break;
+            case 'click':
+              item.isActived = item.value === true;
 
-            break
-          case 'sort':
-            item.isActived = item.value === 'asc' || item.value === 'desc'
+              break;
+            case 'sort':
+              item.isActived = item.value === 'asc' || item.value === 'desc';
 
-            break
-          case 'filter':
-            item.isActived = JSON.stringify(item.value || {}) !== '{}'
+              break;
+            case 'filter':
+              item.isActived = JSON.stringify(item.value || {}) !== '{}';
 
-            break
-          case 'picker':
-            item.isActived = item.value?.length
+              break;
+            case 'picker':
+              item.isActived = item.value?.length;
 
-            break
-          case 'daterange':
+              break;
+            case 'daterange':
+              item.isActived = item.value?.start && item.value?.end;
+              break;
+            case 'slot':
+              item.isActived = !!item.value;
 
-            item.isActived = item.value?.start && item.value?.end
-            break
-          case 'slot':
-            item.isActived = !!item.value
-
-            break
-          default:
-            break
+              break;
+            default:
+              break;
           }
         } else {
-          item.isActived = false
+          item.isActived = false;
         }
 
         // 搜索项特殊处理
         if (!hasSearch.value && item.type === 'search') {
-          item.isHidden = 'true'
-          searchItem.value = item
-          hasSearch.value = true
+          item.isHidden = 'true';
+          searchItem.value = item;
+          hasSearch.value = true;
         }
 
-        newMenu[i] = item
+        newMenu[i] = item;
       }
-      menuList.value = newMenu
+      menuList.value = newMenu;
     }
     /**
      * 更新数据
@@ -273,15 +331,18 @@ export default defineComponent({
      */
     function updateMenu(prop, value, key) {
       if (!key) {
-        console.error('updateMenu 错误，key不存在')
-        return
+        console.error('updateMenu 错误，key不存在');
+        return;
       }
-      const idx = getMenuIndex(prop)
-      menuList.value[idx][key] = key === 'options' ? checkDataField(value, menuList.value[idx].field || null) : value
+      const idx = getMenuIndex(prop);
+      menuList.value[idx][key] =
+        key === 'options'
+          ? checkDataField(value, menuList.value[idx].field || null)
+          : value;
 
       // 去除点击效果
-      if (key === 'value' && (!value && value !== 0)) {
-        menuList.value[idx].isActived = false
+      if (key === 'value' && !value && value !== 0) {
+        menuList.value[idx].isActived = false;
       }
     }
     /**
@@ -290,134 +351,136 @@ export default defineComponent({
      * @param state
      */
     function setMenuLoading(prop, state) {
-      const idx = getMenuIndex(prop)
-      menuList.value[idx].isLoading = state
+      const idx = getMenuIndex(prop);
+      menuList.value[idx].isLoading = state;
     }
     /**
      * 获取菜单项位置
      * @param prop
      */
     function getMenuIndex(prop) {
-      return menuList.value.findIndex(k => k.prop === prop)
+      return menuList.value.findIndex((k) => k.prop === prop);
     }
     /**
      * 获取菜单数据
      */
     function getMenuList() {
-      return menuList.value
+      return menuList.value;
     }
     /**
      * 初始化获取系统信息
      */
-    function initDomInfo() { }
+    function initDomInfo() {}
     /**
      * 打开弹窗
      * @param index 当前激活索引
      */
     function openMenuItemPopup(index) {
-      isShow.value = true
-      isVisible.value = true
-      currentIndex.value = index
-      menuList.value[index].isClick = true
-      emit('open', currentIndex.value)
+      isShow.value = true;
+      isVisible.value = true;
+      currentIndex.value = index;
+      menuList.value[index].isClick = true;
+      emit('open', currentIndex.value);
     }
     /**
      * 关闭弹窗
      */
     function closeMenuPopup() {
-      clearClickState()
-      isShow.value = false
+      clearClickState();
+      isShow.value = false;
       // 延迟移除下拉弹窗
       setTimeout(() => {
-        isVisible.value = false
-        clearIndex()
-      }, props.duration)
-      emit('close', currentIndex.value, menuList.value)
+        isVisible.value = false;
+        clearIndex();
+      }, props.duration);
+      emit('close', currentIndex.value, menuList.value);
     }
     /**
      * 点击蒙层
      */
     function handlePopupMask() {
-      closeMenuPopup()
+      closeMenuPopup();
     }
     /**
      * 清除点击状态
      */
     function clearClickState() {
       if (menuList.value?.length) {
-        menuList.value.forEach(k => {
-          k.isClick = false
-        })
+        menuList.value.forEach((k) => {
+          k.isClick = false;
+        });
       }
     }
     /**
      * 清理滚动
      */
     function handleMove() {
-      return false
+      return false;
     }
     /**
      * 关闭弹窗
      */
     function clearIndex() {
-      currentIndex.value = -1
+      currentIndex.value = -1;
     }
     /**
      * 点击菜单项
      */
     function handleMenuClick(index, item) {
-      if (item.isLoading) return
+      if (item.isLoading) return;
 
-      const dropdownMenu = menuList.value
-      const menuItem = dropdownMenu[index]
+      const dropdownMenu = menuList.value;
+      const menuItem = dropdownMenu[index];
 
-      dropdownMenu.forEach(k => {
-        k.isClick = false
-      })
+      dropdownMenu.forEach((k) => {
+        k.isClick = false;
+      });
 
       if (menuItem.type === 'click') {
-        return handleItemClick(menuItem, index)
+        return handleItemClick(menuItem, index);
       }
 
       if (menuItem.type === 'sort') {
-        return handleItemSort(menuItem, index)
+        return handleItemSort(menuItem, index);
       }
       if (index === currentIndex.value) {
-        item.isClick = false
-        closeMenuPopup()
-        return
+        item.isClick = false;
+        closeMenuPopup();
+        return;
       }
 
-      item.isClick = true
+      item.isClick = true;
 
-      openMenuItemPopup(index)
+      openMenuItemPopup(index);
     }
     /**
      * 获取菜单值
      */
     function getMenuValue() {
-      const obj = {}
-      menuList.value.forEach(k => {
-        obj[k.prop] = k.value
-      })
+      const obj = {};
+      menuList.value.forEach((k) => {
+        obj[k.prop] = k.value;
+      });
 
-      return obj
+      return obj;
     }
     /**
      * 搜索输入
      */
     function handleSearchChange(e) {
-      searchItem.value.value = e?.detail?.value
+      searchItem.value.value = e?.detail?.value;
     }
     /**
      * 确定搜索
      */
     function handleSearch() {
       if (searchItem.value?.prop) {
-        const res = { [searchItem.value.prop]: searchItem.value.value }
-        emit('confirm', res, getMenuValue())
+        const res = { [searchItem.value.prop]: searchItem.value.value };
+        emit('confirm', res, getMenuValue());
       } else {
-        console.error(`菜单项${searchItem.value.title}未定义prop，返回内容失败`)
+        console.error(
+          `菜单项${searchItem.value.title}未定义prop，返回内容失败`,
+        );
       }
     }
     /**
@@ -427,20 +490,20 @@ export default defineComponent({
      * @param index 菜单索引
      */
     function handleCellSelect(callbackData, cellItem, index) {
-      const dropdownMenu = menuList.value
-      const item = dropdownMenu[index]
-      item.isClick = false
+      const dropdownMenu = menuList.value;
+      const item = dropdownMenu[index];
+      item.isClick = false;
 
       if (cellItem.value === '-9999') {
-        item.isActived = false
-        item.value = null
+        item.isActived = false;
+        item.value = null;
       } else {
-        item.isActived = true
-        item.value = cellItem.value
+        item.isActived = true;
+        item.value = cellItem.value;
       }
 
-      closeMenuPopup()
-      emit('confirm', callbackData, getMenuValue())
+      closeMenuPopup();
+      emit('confirm', callbackData, getMenuValue());
     }
     /**
      * 菜单项-点击
@@ -448,22 +511,22 @@ export default defineComponent({
      * @param index 菜单项索引
      */
     function handleItemClick(item, index) {
-      closeMenuPopup()
+      closeMenuPopup();
 
       if (currentIndex.value === -1) {
-        currentIndex.value = index
-        item.value = true
-        item.isActived = true
+        currentIndex.value = index;
+        item.value = true;
+        item.isActived = true;
       } else {
-        item.value = false
-        item.isActived = false
-        clearIndex()
+        item.value = false;
+        item.isActived = false;
+        clearIndex();
       }
       if (item?.prop) {
-        const res = { [item.prop]: item.value }
-        emit('confirm', res, getMenuValue())
+        const res = { [item.prop]: item.value };
+        emit('confirm', res, getMenuValue());
       } else {
-        console.error(`菜单项${item.title}未定义prop，返回内容失败`)
+        console.error(`菜单项${item.title}未定义prop，返回内容失败`);
       }
     }
     /**
@@ -472,27 +535,27 @@ export default defineComponent({
      * @param index 菜单项索引
      */
     function handleItemSort(item, index) {
-      closeMenuPopup()
+      closeMenuPopup();
 
       if (item.value === 'asc') {
-        item.value = 'desc'
-        currentIndex.value = index
-        item.isActived = true
+        item.value = 'desc';
+        currentIndex.value = index;
+        item.isActived = true;
       } else if (item.value === 'desc') {
-        item.value = undefined
-        item.isActived = false
-        clearIndex()
+        item.value = undefined;
+        item.isActived = false;
+        clearIndex();
       } else {
-        item.value = 'asc'
-        currentIndex.value = index
-        item.isActived = true
+        item.value = 'asc';
+        currentIndex.value = index;
+        item.isActived = true;
       }
 
       if (item?.prop) {
-        const res = { [item.prop]: item.value }
-        emit('confirm', res, getMenuValue())
+        const res = { [item.prop]: item.value };
+        emit('confirm', res, getMenuValue());
       } else {
-        console.error(`菜单项${item.title}未定义prop，返回内容失败`)
+        console.error(`菜单项${item.title}未定义prop，返回内容失败`);
       }
     }
     /**
@@ -502,15 +565,15 @@ export default defineComponent({
      * @param index 菜单索引
      */
     function handleFilterConfirm(callbackData, filterData, index) {
-      const dropdownMenu = menuList.value
-      const item = dropdownMenu[index]
-      item.isClick = false
+      const dropdownMenu = menuList.value;
+      const item = dropdownMenu[index];
+      item.isClick = false;
 
-      item.isActived = JSON.stringify(filterData || {}) !== '{}'
-      item.value = filterData
+      item.isActived = JSON.stringify(filterData || {}) !== '{}';
+      item.value = filterData;
 
-      closeMenuPopup()
-      emit('confirm', callbackData, getMenuValue())
+      closeMenuPopup();
+      emit('confirm', callbackData, getMenuValue());
     }
     /**
      * 菜单项-级联回调
@@ -519,20 +582,20 @@ export default defineComponent({
      * @param index 菜单索引
      */
     function handlePickerConfirm(callbackData, pickerItem, index) {
-      const dropdownMenu = menuList.value
-      const item = dropdownMenu[index]
-      item.isClick = false
+      const dropdownMenu = menuList.value;
+      const item = dropdownMenu[index];
+      item.isClick = false;
 
       if (!pickerItem || pickerItem[0] === '-9999') {
-        item.isActived = false
-        item.value = null
+        item.isActived = false;
+        item.value = null;
       } else {
-        item.isActived = true
-        item.value = pickerItem
+        item.isActived = true;
+        item.value = pickerItem;
       }
 
-      closeMenuPopup()
-      emit('confirm', callbackData, getMenuValue())
+      closeMenuPopup();
+      emit('confirm', callbackData, getMenuValue());
     }
     /**
      * 菜单项-日期范围回调
@@ -541,26 +604,26 @@ export default defineComponent({
      * @param index 菜单索引
      */
     function handleDaterangeConfirm(callbackData, daterangeItem, index) {
-      const dropdownMenu = menuList.value
-      const item = dropdownMenu[index]
-      item.isClick = false
+      const dropdownMenu = menuList.value;
+      const item = dropdownMenu[index];
+      item.isClick = false;
 
       if (daterangeItem?.start && daterangeItem?.end) {
-        item.isActived = true
-        item.value = daterangeItem
+        item.isActived = true;
+        item.value = daterangeItem;
       } else {
-        item.isActived = false
-        item.value = null
+        item.isActived = false;
+        item.value = null;
       }
 
-      closeMenuPopup()
-      emit('confirm', callbackData, getMenuValue())
+      closeMenuPopup();
+      emit('confirm', callbackData, getMenuValue());
     }
 
     onMounted(() => {
-      initDomInfo()
-      initData()
-    })
+      initDomInfo();
+      initData();
+    });
 
     return {
       initData,
@@ -586,15 +649,16 @@ export default defineComponent({
       handleFilterConfirm,
       handlePickerConfirm,
       handleDaterangeConfirm,
-    }
+    };
   },
-})
+});
 </script>
 
 <style lang="scss" scoped>
 @font-face {
   font-family: 'da-dropdown-iconfont'; /* Project id  */
-  src: url('data:application/octet-stream;base64,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') format('truetype');
+  src: url('data:application/octet-stream;base64,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')
+    format('truetype');
 }
 
 .da-dropdown {
@@ -778,7 +842,8 @@ export default defineComponent({
 
     &.is-visible {
       visibility: visible;
-      animation: CustomBS var(--dropdown-popup-duration) linear var(--dropdown-popup-duration) forwards;
+      animation: CustomBS var(--dropdown-popup-duration) linear
+        var(--dropdown-popup-duration) forwards;
     }
 
     &-mask {
@@ -848,7 +913,10 @@ export default defineComponent({
 
       &-content {
         position: fixed;
-        top: calc(var(--window-top, 0px) + var(--dropdown-fixed-top, 0px) + var(--dropdown-menu-height, 0px));
+        top: calc(
+          var(--window-top, 0px) + var(--dropdown-fixed-top, 0px) +
+            var(--dropdown-menu-height, 0px)
+        );
         right: 0;
         bottom: 0;
         left: 0;
@@ -860,15 +928,25 @@ export default defineComponent({
     &.has-search {
       .da-dropdown {
         &-menu {
-          top: calc(var(--window-top, 0px) + var(--dropdown-fixed-top, 0px) + var(--dropdown-menu-height, 0px));
+          top: calc(
+            var(--window-top, 0px) + var(--dropdown-fixed-top, 0px) +
+              var(--dropdown-menu-height, 0px)
+          );
         }
 
         &-content {
-          top: calc(var(--window-top, 0px) + var(--dropdown-fixed-top, 0px) + var(--dropdown-menu-height, 0px) + var(--dropdown-menu-height, 0px));
+          top: calc(
+            var(--window-top, 0px) + var(--dropdown-fixed-top, 0px) +
+              var(--dropdown-menu-height, 0px) +
+              var(--dropdown-menu-height, 0px)
+          );
         }
 
         &--blank {
-          height: calc(var(--dropdown-fixed-top, 0px) + var(--dropdown-menu-height, 0px) + var(--dropdown-menu-height, 0px));
+          height: calc(
+            var(--dropdown-fixed-top, 0px) + var(--dropdown-menu-height, 0px) +
+              var(--dropdown-menu-height, 0px)
+          );
         }
       }
     }

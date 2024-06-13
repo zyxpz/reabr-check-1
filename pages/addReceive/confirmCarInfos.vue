@@ -22,6 +22,7 @@
                 v-model="formData.truckNo"
                 placeholder="请输入车牌"
                 style="height: 35px"
+                :disabled="disabled"
                 @focus="onFocus"
               />
             </view>
@@ -174,6 +175,10 @@ export default {
   data() {
     return {
       id: '',
+      // #ifdef H5 || APP-PLUS
+      disabled: true,
+      // #endif
+      disabled: false,
       plateShow: false,
       /**
        * 暂存 loading

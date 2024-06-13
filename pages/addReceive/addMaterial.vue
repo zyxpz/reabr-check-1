@@ -2,15 +2,15 @@
   <view class="add-material-page">
     <view>
       <view class="text">请根据送货单添加待验收钢筋规格 </view>
-      <button v-if="rebarType === '1'" type="primary" @click="visible = true">
+      <button v-if="rebarType === 1" type="primary" @click="visible = true">
         添加直螺纹钢筋
       </button>
-      <button v-if="rebarType === '2'" type="primary" @click="visible = true">
+      <button v-if="rebarType === 2" type="primary" @click="visible = true">
         添加盘螺纹钢筋
       </button>
       <u-cus-gap size="16" />
       <uni-data-checkbox
-        v-if="rebarType === '1'"
+        v-if="rebarType === 1"
         v-model="checkType"
         :localdata="weighTypeList"
         @change="handleChangeWeighType"
@@ -19,7 +19,7 @@
       <view class="uni-panel">
         <view class="uni-panel-h g-flex-aic-jcsb">
           <view class="g-flex-aic">
-            <view><text v-show="rebarType === '1'">混装</text>实称总重量</view>
+            <view><text v-show="rebarType === 1">混装</text>实称总重量</view>
             <uni-easyinput
               class="total-input"
               errorMessage
@@ -47,7 +47,7 @@
         </view>
         <text>送货单数量</text>
         <u-cus-gap size="16" />
-        <view v-if="rebarType === '1'">
+        <view v-if="rebarType === 1">
           <view class="item-content-row">
             <view class="item-content-row-title">单根长度(米)：</view>
             <view class="g-flex">
@@ -153,7 +153,7 @@ export default {
       /**
        * 钢筋类型 1：直螺纹钢筋 2：盘螺纹钢筋
        */
-      rebarType: '1',
+      rebarType: 1,
       /**
        * 称重类型
        */
@@ -336,7 +336,7 @@ export default {
       const params = {
         attributionId: attributeInfo?.attributionId,
         phoneSn: phoneSn,
-        checkType: this.rebarType === '1' ? this.checkType : undefined,
+        checkType: this.rebarType === 1 ? this.checkType : undefined,
         /** 实称总重 */
         actualWeight: this.actualWeight,
         /** 单位 */
@@ -431,7 +431,7 @@ export default {
   },
 
   onLoad(options) {
-    this.rebarType = options.rebarType;
+    this.rebarType = Number(options.rebarType);
     this.id = options.id;
   },
   onShow() {

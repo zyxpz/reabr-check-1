@@ -133,6 +133,7 @@ export default {
           title: '搜索',
           type: 'search',
           prop: 'no',
+          placeholder: '请输入编号',
         },
         {
           title: '记录状态',

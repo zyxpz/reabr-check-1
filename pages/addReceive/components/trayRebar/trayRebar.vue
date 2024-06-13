@@ -64,7 +64,9 @@
 export default {
   props: ['detail', 'readOnly'],
   data() {
-    return {};
+    return {
+      dataSource: [],
+    };
   },
   methods: {
     /**
@@ -72,6 +74,7 @@ export default {
      * @param type 点击的是哪一列 1：送货单 2：复核结果 3：实点根数
      */
     handleTd(type) {
+      console.log(this.readOnly, 'this.readOnly');
       if (this.readOnly) return;
       this.dataSource = this.dataSource.map((one) => {
         return {
@@ -82,10 +85,10 @@ export default {
       });
     },
   },
-  computed: {
-    dataSource() {
-      const { checkReverseVO, checkConfirmVO } = this.detail;
-      return checkReverseVO?.totalCheckVO
+  watch: {
+    detail(newV) {
+      const { checkReverseVO, checkConfirmVO } = newV;
+      this.dataSource = checkReverseVO?.totalCheckVO
         ? [
             {
               ...checkReverseVO?.totalCheckVO,
