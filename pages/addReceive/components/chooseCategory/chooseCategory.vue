@@ -173,9 +173,8 @@ export default {
         this.getMaterialList();
       } else {
         this.$refs.popup.close();
-        this.materialList?.forEach((one) => {
-          one.count = 0;
-        });
+        this.searchValue = '';
+        this.materialList = [];
       }
     },
   },

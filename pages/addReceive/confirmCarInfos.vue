@@ -178,7 +178,6 @@ export default {
       // #ifdef H5 || APP-PLUS
       disabled: true,
       // #endif
-      disabled: false,
       plateShow: false,
       /**
        * 暂存 loading

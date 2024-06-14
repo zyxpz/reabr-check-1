@@ -15,7 +15,7 @@
         ><button type="primary" @click="handlePrev">上一步</button></uni-col
       >
       <uni-col :span="15"
-        ><button type="primary" @click="handleNext">
+        ><button :loading="nextLoading" type="primary" @click="handleNext">
           确认车辆信息
         </button></uni-col
       >
@@ -39,6 +39,7 @@ export default {
     return {
       loading: false,
       detail: {},
+      nextLoading: false,
     };
   },
   methods: {
@@ -54,9 +55,13 @@ export default {
         return;
       }
       uni.showLoading();
-      const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
-      uni.hideLoading();
-      this.detail = res?.data;
+      try {
+        const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
+        uni.hideLoading();
+        this.detail = res?.data;
+      } catch (error) {
+        uni.hideLoading();
+      }
     },
     handlePrev() {
       uni.redirectTo({
@@ -70,10 +75,16 @@ export default {
         confirmWeight: one.children?.[1]?.confirmWeight,
         children: undefined,
       }));
-      await request.post(`/api/rebarCheck/chooseConfirm/${this.id}`, list);
-      uni.redirectTo({
-        url: `/pages/addReceive/confirmCarInfos?id=${this.id}`,
-      });
+      this.nextLoading = true;
+      try {
+        await request.post(`/api/rebarCheck/chooseConfirm/${this.id}`, list);
+        this.nextLoading = false;
+        uni.redirectTo({
+          url: `/pages/addReceive/confirmCarInfos?id=${this.id}`,
+        });
+      } catch (error) {
+        this.nextLoading = false;
+      }
     },
   },
   onLoad(options) {

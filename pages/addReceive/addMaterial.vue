@@ -119,7 +119,7 @@
         ><button type="warn" @click="handleCancel">取消</button></uni-col
       >
       <uni-col v-show="list.length" :span="16" :offset="1"
-        ><button type="primary" @click="handleCheck" hover-class="is-hover">
+        ><button type="primary" :loading="checkLoading" @click="handleCheck">
           校验复核
         </button></uni-col
       >
@@ -192,33 +192,8 @@ export default {
       /**
        * 钢筋规格型号
        */
-      list: [
-        // {
-        //   cusId: uuidv4(),
-        //   /**
-        //    * 单根长度
-        //    */
-        //   length: '',
-        //   /**
-        //    * 送货单根数
-        //    */
-        //   sendAmount: '',
-        //   /**
-        //    * 实点根数
-        //    */
-        //   actualAmount: '',
-        //   /**
-        //    * 送货单重量
-        //    */
-        //   sendWeight: '',
-        //   /** 送货重量单位 */
-        //   sendWeightUnit: '千克',
-        //   /** 确认根数 */
-        //   confirmAmount: '',
-        //   /** 确认重量 */
-        //   confirmWeight: '',
-        // },
-      ],
+      list: [],
+      checkLoading: false,
       /**
        * 长度数组
        */
@@ -349,20 +324,20 @@ export default {
       if (this.checkType === 2) {
         validErr = this.list?.find(
           (one) =>
-            !one.length || !one.sendAmount || !actualAmount || !sendWeight,
+            !one.length || !one.sendAmount || !actualAmount || !one?.sendWeight,
         );
       }
       /** 直螺 */
       if (this.checkType === 1 && this.rebarType === 1) {
         validErr = this.list?.find(
-          (one) => !one.length || !one.sendAmount || !sendWeight,
+          (one) => !one.length || !one.sendAmount || !one?.sendWeight,
         );
       }
       /**
        * 盘螺
        */
       if (this.checkType === 1 && this.rebarType === 2) {
-        validErr = this.list?.find((one) => !one.length || !sendWeight);
+        validErr = this.list?.find((one) => !one?.sendWeight);
       }
       if (validErr) {
         uni.showToast({
@@ -396,16 +371,22 @@ export default {
       const requestFun = this.id
         ? request.post('/api/rebarCheck/complexUpdate', params)
         : request.post('/api/rebarCheck/add', params);
-      const res = await requestFun;
-      if (!this.id) {
-        this.id = res?.data;
-      }
-      if (this.rebarType === 1) {
-        this.rebarCheckFirst();
-      } else {
-        uni.redirectTo({
-          url: `/pages/addReceive/checkTrayRebar?id=${this.id}`,
-        });
+      this.checkLoading = true;
+      try {
+        const res = await requestFun;
+        this.checkLoading = false;
+        if (!this.id) {
+          this.id = res?.data;
+        }
+        if (this.rebarType === 1) {
+          this.rebarCheckFirst();
+        } else {
+          uni.redirectTo({
+            url: `/pages/addReceive/checkTrayRebar?id=${this.id}`,
+          });
+        }
+      } catch (error) {
+        this.checkLoading = false;
       }
     },
 
@@ -565,11 +546,7 @@ export default {
   flex: 1;
   overflow: auto;
 }
-.is-hover {
-  color: rgba(255, 255, 255, 0.6);
-  background-color: #179b16;
-  border-color: #179b16;
-}
+
 button {
   font-size: 32rpx;
 }
