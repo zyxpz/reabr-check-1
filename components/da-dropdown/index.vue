@@ -218,7 +218,7 @@ export default defineComponent({
      */
     async function initData() {
       const newMenu = deepClone(props.dropdownMenu || []);
-      const allItem = { label: '不限', value: '-9999' };
+      const allItem = { label: '全部', value: '-9999' };
       if (!newMenu || newMenu.length === 0) {
         menuList.value = [];
         return;

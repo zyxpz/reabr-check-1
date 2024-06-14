@@ -30,6 +30,11 @@ const request = (url, method, data, header = {}) => {
             icon: 'none',
           });
           reject(res);
+          if (res?.data?.errCode === '-1') {
+            uni.switchTab({
+              url: '/pages/tabBar/Setting/Setting',
+            });
+          }
         }
       },
       fail: (err) => {

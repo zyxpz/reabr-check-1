@@ -139,10 +139,9 @@ export default {
           title: '记录状态',
           type: 'cell',
           prop: 'isVerify',
-          showAll: false,
+          showAll: true,
           showIcon: true,
           options: [
-            { label: '全部', value: '' },
             { label: '未归档', value: '1' },
             { label: '已归档', value: '2' },
           ],
@@ -151,10 +150,9 @@ export default {
           title: '推送状态',
           type: 'cell',
           prop: 'pushStatus',
-          showAll: false,
+          showAll: true,
           showIcon: true,
           options: [
-            { label: '全部', value: '1' },
             { label: '未推送', value: '1' },
             { label: '已推送', value: '2' },
           ],
@@ -352,6 +350,12 @@ export default {
   },
   watch: {
     searchParams(newValue) {
+      if (newValue?.isVerify === '-9999') {
+        newValue.isVerify = '';
+      }
+      if (newValue?.pushStatus === '-9999') {
+        newValue.pushStatus = '';
+      }
       this.reload = true;
       this.last_id = '';
       this.current = 1;
