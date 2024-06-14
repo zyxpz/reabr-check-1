@@ -329,7 +329,10 @@ export default {
     },
     attributeInfo(newValue) {
       uni.setStorageSync('attribute-info', newValue);
-      if (!this.tenantInfo?.uid || !newValue?.attributionId) return;
+      if (!this.tenantInfo?.uid || !newValue?.attributionId) {
+        uni.setStorageSync('cus-token', '');
+        return;
+      }
       uni.showLoading();
       request
         .get(

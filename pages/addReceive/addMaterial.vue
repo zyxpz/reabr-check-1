@@ -26,6 +26,7 @@
               v-model="actualWeight"
               type="number"
               placeholder="请输入"
+              :min="0"
               @input="(e) => changeTotalWeight(e)"
               :disabled="!inputEnable"
             />
@@ -317,7 +318,7 @@ export default {
       let paramsStr = '';
       Object.keys(params).forEach((key, index) => {
         if (!index) {
-          /* 预发环境 */
+          /* 第一个参数 */
           paramsStr = `?${key}=${params[key]}`;
         } else {
           paramsStr = `${paramsStr}&${key}=${params[key]}`;
@@ -333,6 +334,43 @@ export default {
     async addRebar() {
       const attributeInfo = uni.getStorageSync('attribute-info');
       const phoneSn = uni.getStorageSync('phoneSn');
+      if (!this.actualWeight || this.actualWeight <= 0) {
+        uni.showToast({
+          title: '请检查实称总重量须大于 0',
+          icon: 'none',
+        });
+        return;
+      }
+      /**
+       * 材料校验
+       */
+      /** 实称+实点 */
+      let validErr = false;
+      if (this.checkType === 2) {
+        validErr = this.list?.find(
+          (one) =>
+            !one.length || !one.sendAmount || !actualAmount || !sendWeight,
+        );
+      }
+      /** 直螺 */
+      if (this.checkType === 1 && this.rebarType === 1) {
+        validErr = this.list?.find(
+          (one) => !one.length || !one.sendAmount || !sendWeight,
+        );
+      }
+      /**
+       * 盘螺
+       */
+      if (this.checkType === 1 && this.rebarType === 2) {
+        validErr = this.list?.find((one) => !one.length || !sendWeight);
+      }
+      if (validErr) {
+        uni.showToast({
+          title: '请检查材料送货数据',
+          icon: 'none',
+        });
+        return;
+      }
       const params = {
         attributionId: attributeInfo?.attributionId,
         phoneSn: phoneSn,

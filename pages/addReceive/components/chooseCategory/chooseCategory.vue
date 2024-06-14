@@ -16,9 +16,27 @@
             <uni-icons type="closeempty" @click="clsoePopup" />
           </uni-col>
         </uni-row>
+        <view class="search-container">
+          <uni-easyinput
+            v-model="searchValue"
+            placeholder="请输入材料名称或规格型号进行搜索"
+          >
+            <template #right>
+              <uni-icons
+                type="search"
+                size="24"
+                class="search-icon"
+                @click="handleSearch"
+              ></uni-icons></template
+          ></uni-easyinput>
+        </view>
         <view class="popup-content">
           <view class="categroy-content">
-            <uni-row class="item" v-for="item in materialList" :key="item.id">
+            <uni-row
+              class="item"
+              v-for="item in showMaterialList"
+              :key="item.id"
+            >
               <uni-col :span="18">
                 <view class="name"
                   >{{ item.materialName }}/{{ item.materialSpec }}</view
@@ -68,6 +86,7 @@ export default {
        * 钢筋规格型号
        */
       materialList: [],
+      searchValue: '',
     };
   },
   methods: {
@@ -134,6 +153,15 @@ export default {
       this.materialList = res?.data?.map((one) => ({
         ...one,
         count: 0,
+        show: true,
+      }));
+    },
+    handleSearch() {
+      this.materialList = this.materialList.map((one) => ({
+        ...one,
+        show:
+          one.materialName?.includes(this.searchValue) ||
+          one?.materialSpec?.includes(this.searchValue),
       }));
     },
   },
@@ -151,14 +179,31 @@ export default {
       }
     },
   },
+  computed: {
+    showMaterialList() {
+      return this.materialList?.filter((one) => one?.show);
+    },
+  },
   mounted() {},
 };
 </script>
-<style>
+<style lang="less">
 .add-material-page {
   padding: 24rpx;
 }
-
+.search-container {
+  padding: 0 24rpx 8rpx 24rpx;
+  position: relative;
+}
+.search-icon {
+  color: rgb(192, 196, 204) !important;
+  margin: 0 16rpx 4rpx 0;
+}
+.custom-esayinput {
+  .uni-easyinput__content-input {
+    padding-right: 40rpx !important;
+  }
+}
 .text {
   background-color: #fff;
   padding: 24rpx;
@@ -203,6 +248,8 @@ export default {
 .counter {
   display: flex;
   align-items: center;
+  border: solid 1rpx #efefef;
+  border-radius: 4px;
 }
 
 .btn {
@@ -213,30 +260,38 @@ export default {
   justify-content: center;
   align-items: center;
   padding: 0;
-  margin: -6rpx;
+  border: none;
 }
-
-.btn-left:after {
-  border-right: none;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+.btn-left::after {
+  border: none;
 }
-
-.btn-right:after {
-  border-left: none;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+.btn-left {
+  border: none;
+  border-radius: 0;
+  border-bottom-left-radius: 4px;
+  border-top-left-radius: 4px;
+  border-right: solid 1px #efefef;
+}
+.btn-right::after {
+  border: none;
+}
+.btn-right {
+  border: none;
+  border-radius: 0;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border-left: solid 1px #efefef;
 }
 
 .input {
-  height: 48rpx;
-  width: 80rpx;
   text-align: center;
   margin: 0;
   border: 1rpx solid rgba(0, 0, 0, 0.2);
   z-index: 1;
   color: #666;
   font-size: 26rpx;
+  flex: 1;
+  border: none;
 }
 
 .confirm {
