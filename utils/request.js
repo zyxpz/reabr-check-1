@@ -3,7 +3,17 @@
 // 基础URL配置，根据实际情况修改
 // const BASE_URL = 'https://zz-test05.pinming.org/material-client-management';
 /** 代理需要 */
-const BASE_URL = '';
+// const BASE_URL = '';
+
+const getBaseUrl = (type) => {
+  if (type === 'dev') {
+    return '';
+  }
+  if (type === 'test') {
+    return 'https://zz-test05.pinming.org/material-client-management';
+  }
+};
+
 // 创建一个通用的请求函数
 const request = (url, method, data, header = {}) => {
   const Authentication =
@@ -13,7 +23,7 @@ const request = (url, method, data, header = {}) => {
       : { Authentication: uni.getStorageSync('cus-token') };
   return new Promise((resolve, reject) => {
     uni.request({
-      url: BASE_URL + url,
+      url: getBaseUrl('test') + url,
       method: method,
       data: data,
       header: {

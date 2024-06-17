@@ -1,7 +1,6 @@
 import App from './App';
 import store from './store';
-// import VConsole from 'vconsole';
-// const vConsole = new VConsole();
+import { HFdebugging } from '@/uni_modules/HF-HF_debugging/common/next.js';
 
 // #ifndef VUE3
 import Vue from 'vue';
@@ -26,6 +25,7 @@ app.$mount();
 import { createSSRApp } from 'vue';
 export function createApp() {
   const app = createSSRApp(App);
+  new HFdebugging({ app });
   app.use(store);
   app.config.globalProperties.$adpid = '1111111111';
   app.config.globalProperties.$backgroundAudioData = {

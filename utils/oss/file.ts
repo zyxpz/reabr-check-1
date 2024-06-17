@@ -17,10 +17,10 @@ export const filterFile = (
 ) => {
   return new Promise((resolve) => {
     if (accept.length > 0 && !accept.includes(getFileIcon(suffix, file))) {
-      uni.showToast({
-        title: `请上传${accept.join(',')}格式文件`,
-        icon: 'none',
-      });
+      // uni.showToast({
+      //   title: `请上传${accept.join(',')}格式文件`,
+      //   icon: 'none',
+      // });
       onError && onError();
     } else {
       resolve(true);

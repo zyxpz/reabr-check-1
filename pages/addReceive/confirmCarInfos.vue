@@ -161,13 +161,14 @@
     </uni-row>
   </view>
 </template>
+
 <script>
 import permision from '@/common/permission';
 import PlateInput from '../../components/uni-plate-input/uni-plate-input.vue';
 import request from '@/utils/request';
 import oss from '@/utils/oss';
 import moment from 'moment';
-
+import upload$ from '@/utils/upload';
 export default {
   components: {
     PlateInput,
@@ -356,26 +357,19 @@ export default {
           console.log('err', err);
         });
     },
-    changePic(tempFiles, type) {
-      const promiseArr = [];
-      tempFiles?.forEach((one) => {
-        if (one?.file) {
-          promiseArr.push(oss(one));
-        } else {
-          promiseArr.push(oss({ file: one, blobFile: true }));
-        }
-      });
-      if (promiseArr?.length) {
-        try {
-          return Promise.all(promiseArr).then((res) => {
-            console.log('上传成功，文件 URL:', res);
-            return res;
-          });
-        } catch (e) {
-          console.error('上传失败:', e);
-        }
+    async changePic(tempFiles = [], type) {
+      const files = tempFiles?.map((one) => ({
+        ...one,
+        file: one?.file ? one?.file : one,
+      }));
+      console.log(files, 'files');
+      try {
+        const filesUuid = await upload$.uploadFiles(files);
+        return files?.length ? filesUuid?.split(',') : [];
+      } catch (e) {
+        //TODO handle the exception
+        console.log(e, 'ee');
       }
-      return Promise.resolve([]);
     },
     setPlate(plate) {
       if (plate.length >= 7) this.formData.truckNo = plate;
@@ -458,6 +452,10 @@ export default {
       );
       /** 过滤出详情中剩余未被删除的数据 */
       const detailTruckPic = truckPic?.filter((one) => one.isDetail);
+      console.log(
+        truckPic?.filter((one) => !one.isDetail),
+        ' truckPic?.filter((one) => !one.isDetail)',
+      );
       /** 转换新增的数据 */
       const tempTruckPicUuid = await this.changePic(
         truckPic?.filter((one) => !one.isDetail),
@@ -466,7 +464,6 @@ export default {
       const finallyTruckPicUuid = detailTruckPic
         ?.map((one) => one.uuid)
         ?.concat(tempTruckPicUuid);
-
       /** 货/铭牌照片 */
       const goodsPic = goodsPicTemp?.filter((one) =>
         this.formData.goodsPic?.find((dt) =>
@@ -486,7 +483,6 @@ export default {
       const finallyGoodsPicUuid = detailGoodsPic
         ?.map((one) => one.uuid)
         ?.concat(tempGoodsPicUuid);
-
       /** 送货单照片 */
       const sendPic = sendPicTemp?.filter((one) =>
         this.formData.sendPic?.find((dt) =>
@@ -496,11 +492,10 @@ export default {
         ),
       );
       /** 过滤出详情中剩余未被删除的数据 */
-      const detailSendPic = sendPic?.filter((one) => one.isDetail);
+      const detailSendPic = sendPic?.filter((one) => one.isDetail) ?? [];
       const tempSendPicUuid = await this.changePic(
         sendPic?.filter((one) => !one.isDetail),
       );
-
       /** 最终图片数据是由详情中未被删除的+新增的 */
       const finallySendPicUuid = detailSendPic
         ?.map((one) => one.uuid)
@@ -533,6 +528,7 @@ export default {
         this.saveLoading = true;
       }
       try {
+      
         const res = await request.post('/api/rebarCheck/truckOrPicUpdate', {
           ...rest,
           truckPic: finallyTruckPicUuid?.join(),
@@ -561,13 +557,11 @@ export default {
             icon: 'error',
           });
         }
+        uni.hideLoading();
       } catch (error) {
         uni.hideLoading();
-        if (isVerify === 1) {
-          this.loading = false;
-        } else {
-          this.saveLoading = false;
-        }
+        this.loading = false;
+        this.saveLoading = false;
       }
     },
   },

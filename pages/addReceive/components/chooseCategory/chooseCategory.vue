@@ -13,7 +13,7 @@
             <view class="popup-title">请选择钢筋规格型号</view>
           </uni-col>
           <uni-col :span="1">
-            <uni-icons type="closeempty" @click="clsoePopup" />
+            <uni-icons type="closeempty" @click="closePopup" />
           </uni-col>
         </uni-row>
         <view class="search-container">
@@ -32,39 +32,46 @@
         </view>
         <view class="popup-content">
           <view class="categroy-content">
-            <uni-row
-              class="item"
-              v-for="item in showMaterialList"
-              :key="item.id"
+            <virtual-list
+              :allList="showMaterialList"
+              :containerHeight="600"
+              ref="virtualListRef"
             >
-              <uni-col :span="18">
-                <view class="name"
-                  >{{ item.materialName }}/{{ item.materialSpec }}</view
-                >
-              </uni-col>
-              <uni-col :span="6">
-                <view class="counter">
-                  <button
-                    :disabled="item.count < 1"
-                    class="btn btn-left"
-                    @click="() => decrease(item)"
-                  >
-                    -
-                  </button>
-                  <input
-                    class="input"
-                    type="number"
-                    :value="item.count"
-                    @input="(e) => updateCount(e, item)"
-                    :min="0"
-                  />
-                  <button class="btn btn-right" @click="() => increase(item)">
-                    +
-                  </button>
-                  <!-- <uni-number-box :min="0" :value="item.count" /> -->
-                </view>
-              </uni-col>
-            </uni-row>
+              <template v-slot:default="{ item }">
+                <uni-row class="item">
+                  <uni-col :span="18">
+                    <view class="name"
+                      >{{ item.materialName }}/{{ item.materialSpec }}</view
+                    >
+                  </uni-col>
+                  <uni-col :span="6">
+                    <view class="counter">
+                      <button
+                        :disabled="item.count < 1"
+                        class="btn btn-left"
+                        @click="() => decrease(item)"
+                      >
+                        -
+                      </button>
+                      <input
+                        class="input"
+                        type="number"
+                        :value="item.count"
+                        @input="(e) => updateCount(e, item)"
+                        :min="0"
+                      />
+                      <button
+                        class="btn btn-right"
+                        @click="() => increase(item)"
+                      >
+                        +
+                      </button>
+                      <!-- <uni-number-box :min="0" :value="item.count" /> -->
+                    </view>
+                  </uni-col>
+                </uni-row>
+              </template>
+            </virtual-list>
           </view>
         </view>
         <button class="confirm" type="primary" @click="handleConfirm">
@@ -77,9 +84,12 @@
 <script>
 // import { materialList } from '../../../../common/constants';
 import request from '@/utils/request';
-
+import VirtualList from '../../../../components/virtualList/virtualList.vue';
 export default {
   props: ['visible', 'rebarType'],
+  components: {
+    VirtualList,
+  },
   data() {
     return {
       /**
@@ -93,7 +103,10 @@ export default {
     /**
      * 关闭钢筋弹窗
      */
-    clsoePopup() {
+    closePopup() {
+      this.$refs.popup.close();
+      this.searchValue = '';
+      this.materialList = [];
       this.$emit('cancel');
     },
     destroyPopup() {
@@ -130,7 +143,6 @@ export default {
       });
     },
     updateCount(e, item) {
-      console.log(e, 'ee');
       this.materialList.forEach((one) => {
         if (one.id === item.id) {
           one.count = Number(e.detail.value);
@@ -163,6 +175,7 @@ export default {
           one.materialName?.includes(this.searchValue) ||
           one?.materialSpec?.includes(this.searchValue),
       }));
+      this.$refs.virtualListRef?.handleScroll({ detail: { scrollTop: 0 } });
     },
   },
 
@@ -228,7 +241,7 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   flex: 1;
-  overflow: auto;
+  // overflow: auto;
 }
 
 .popup-title {
