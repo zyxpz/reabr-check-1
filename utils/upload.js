@@ -9,6 +9,7 @@ import {
 } from './server';
 // import { compressImage } from '../compress';
 const defaultMd5 = '00000000000000000000000000000000';
+import CryptoJS from './cryptoJS';
 
 const fileUtil = {
   /***
@@ -41,6 +42,7 @@ const fileUtil = {
                 resolve(res.digest);
               },
               fail: (err) => {
+                console.log(err, 'err');
                 resolve('');
               },
             });
@@ -73,7 +75,7 @@ const fileUtil = {
     // #endif
     // #ifndef MP-ALIPAY
     const byteData = uni.getFileSystemManager().readFileSync(filePath);
-    uni.$u.log.l('byteData', byteData);
+    console.log.l('byteData', byteData);
     const sMD5 = uni.$u.md5;
     let spark = new sMD5.ArrayBuffer();
     spark.append(byteData);
@@ -110,7 +112,7 @@ const fileUtil = {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = ({ target }) => {
-            const CryptoJS = uni.$u.crypto;
+            // const CryptoJS = uni.$u.crypto;
             const wordArray = CryptoJS.lib.WordArray.create(target.result);
             // 增量更新计算结果
             alog.update(wordArray);
@@ -141,7 +143,7 @@ const fileUtil = {
     }
 
     // 同时计算文件的sha256和md5,并使用promise返回
-    const CryptoJS = uni.$u.crypto;
+    // const CryptoJS = uni.$u.crypto;
     return Promise.all([
       // hashFileInternal(file, CryptoJS.algo.SHA256.create()),
       hashFileInternal(file, CryptoJS.algo.MD5.create()),

@@ -69,12 +69,23 @@ export default {
       });
     },
     async handleNext() {
-      const list = this.$refs.confirmMaterial.materialLists.map((one) => ({
+      const tempList = this.$refs.confirmMaterial.materialLists;
+      const list = tempList.map((one) => ({
         ...one,
         confirmAmount: one.children?.[0]?.confirmAmount,
         confirmWeight: one.children?.[1]?.confirmWeight,
         children: undefined,
       }));
+      if (
+        tempList?.find((one) => one.children?.find((dl) => !dl.checkedType))
+      ) {
+        uni.showToast({
+          title: '请确认各规格收货数据',
+          icon: 'none',
+        });
+        return;
+      }
+
       this.nextLoading = true;
       try {
         await request.post(`/api/rebarCheck/chooseConfirm/${this.id}`, list);

@@ -69,8 +69,10 @@
   </view>
 </template>
 <script>
+import request from '@/utils/request.js';
+
 export default {
-  props: ['detail'],
+  props: ['detail', 'id', 'getDetail'],
   data() {
     return {
       loading: false,
@@ -82,9 +84,22 @@ export default {
     };
   },
   methods: {
-    handleChangeWeighType(e) {
-      console.log(e);
-      this.weighType = e.value;
+    async handleChangeWeighType(e) {
+      this.reverseWeightType = e?.detail?.value;
+      uni.showLoading();
+      try {
+        await request.get(
+          `/api/rebarCheck/reverseWeightType/${this.id}/${this.reverseWeightType}`,
+        );
+        await request.get(`/api/rebarCheck/second/${this.id}`);
+        this.getDetail();
+        uni.pageScrollTo({
+          selector: '.choose-content',
+        });
+      } catch (error) {
+        uni.hideLoading();
+      }
+      uni.hideLoading();
     },
   },
   watch: {
@@ -93,7 +108,6 @@ export default {
         newValue?.checkReverseVO?.totalCheckVO?.reverseWeightType + '';
       this.weighTypeList = this.weighTypeList?.map((one) => ({
         ...one,
-        disable: newValue?.checkReverseVO?.totalCheckVO?.reverseWeightType,
       }));
     },
   },

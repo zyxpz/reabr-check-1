@@ -2,7 +2,12 @@
   <view class="add-material-page">
     <view>
       <view class="text">请根据送货单添加待验收钢筋规格 </view>
-      <button v-if="rebarType === 1" type="primary" @click="visible = true">
+      <button
+        v-if="rebarType === 1"
+        type="primary"
+        :disabled="visible"
+        @click="visible = true"
+      >
         添加直螺纹钢筋
       </button>
       <button v-if="rebarType === 2" type="primary" @click="visible = true">
@@ -324,7 +329,10 @@ export default {
       if (this.checkType === 2) {
         validErr = this.list?.find(
           (one) =>
-            !one.length || !one.sendAmount || !actualAmount || !one?.sendWeight,
+            !one.length ||
+            !one.sendAmount ||
+            !one?.actualAmount ||
+            !one?.sendWeight,
         );
       }
       /** 直螺 */
@@ -336,7 +344,7 @@ export default {
       /**
        * 盘螺
        */
-      if (this.checkType === 1 && this.rebarType === 2) {
+      if (this.rebarType === 2) {
         validErr = this.list?.find((one) => !one?.sendWeight);
       }
       if (validErr) {

@@ -218,6 +218,7 @@ export default {
         };
       }
       if (uni.getSystemInfoSync().platform === 'ios') {
+        // var testModule = uni.requireNativePlugin('Univalsoft-DeviceId');
         // this.systemInfo = {
         //   model: '123456789',
         // };

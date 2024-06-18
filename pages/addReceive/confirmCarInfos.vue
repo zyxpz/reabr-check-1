@@ -69,6 +69,7 @@
               @success="success"
               @fail="fail"
               :source-type="['camera, album']"
+              :auto-upload="false"
             />
           </uni-forms-item>
           <uni-forms-item
@@ -87,6 +88,7 @@
               @fail="fail"
               @select="(e) => select(e, 'sendPic', 'sendPicTemp')"
               :source-type="['camera, album']"
+              :auto-upload="false"
             />
           </uni-forms-item>
         </view>
@@ -362,7 +364,6 @@ export default {
         ...one,
         file: one?.file ? one?.file : one,
       }));
-      console.log(files, 'files');
       try {
         const filesUuid = await upload$.uploadFiles(files);
         return files?.length ? filesUuid?.split(',') : [];
@@ -401,7 +402,7 @@ export default {
         truckNo,
         truckTime: truckTime
           ? moment(truckTime).format('YYYY-MM-DD HH:mm:ss')
-          : undefined,
+          : this.formData?.truckTime,
         checkRemark,
         checkResult: checkResult + '',
         extNo,
@@ -421,7 +422,6 @@ export default {
             url: res?.data?.checkTruckVO?.truckPics?.[index],
           })),
       };
-      console.log(this.formData, ' this.formData');
     },
     async handleSave(isVerify) {
       const {
@@ -452,10 +452,7 @@ export default {
       );
       /** 过滤出详情中剩余未被删除的数据 */
       const detailTruckPic = truckPic?.filter((one) => one.isDetail);
-      console.log(
-        truckPic?.filter((one) => !one.isDetail),
-        ' truckPic?.filter((one) => !one.isDetail)',
-      );
+
       /** 转换新增的数据 */
       const tempTruckPicUuid = await this.changePic(
         truckPic?.filter((one) => !one.isDetail),
@@ -464,6 +461,7 @@ export default {
       const finallyTruckPicUuid = detailTruckPic
         ?.map((one) => one.uuid)
         ?.concat(tempTruckPicUuid);
+
       /** 货/铭牌照片 */
       const goodsPic = goodsPicTemp?.filter((one) =>
         this.formData.goodsPic?.find((dt) =>
@@ -528,7 +526,6 @@ export default {
         this.saveLoading = true;
       }
       try {
-      
         const res = await request.post('/api/rebarCheck/truckOrPicUpdate', {
           ...rest,
           truckPic: finallyTruckPicUuid?.join(),
@@ -546,11 +543,9 @@ export default {
             title: isVerify === 1 ? '暂存成功' : '保存并归档成功',
             icon: 'success',
           });
-          if (isVerify === 2) {
-            uni.switchTab({
-              url: '/pages/tabBar/ReceiveRecords/ReceiveRecords',
-            });
-          }
+          uni.switchTab({
+            url: '/pages/tabBar/AddReceive/AddReceive',
+          });
         } else {
           uni.showToast({
             title: '保存失败',

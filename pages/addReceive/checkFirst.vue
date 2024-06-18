@@ -3,7 +3,12 @@
     <view class="content">
       <delivery-node :detail="detail" />
       <u-cus-gap size="24" />
-      <total-weight-deviation ref="childComp" :detail="detail" />
+      <total-weight-deviation
+        ref="childComp"
+        :detail="detail"
+        :id="id"
+        :getDetail="getDetail"
+      />
       <view v-show="reverseWeightType">
         <u-cus-gap size="24" />
         <reverse-check :detail="detail" />
@@ -58,13 +63,13 @@ export default {
           });
           return;
         }
-        uni.showLoading();
-        await request.get(
-          `/api/rebarCheck/reverseWeightType/${this.id}/${reverseWeightType}`,
-        );
-        await request.get(`/api/rebarCheck/second/${this.id}`);
-        uni.showLoading();
-        this.getDetail();
+        // uni.showLoading();
+        // await request.get(
+        //   `/api/rebarCheck/reverseWeightType/${this.id}/${reverseWeightType}`,
+        // );
+        // await request.get(`/api/rebarCheck/second/${this.id}`);
+        // uni.showLoading();
+        // this.getDetail();
       } else {
         uni.redirectTo({
           url: `/pages/addReceive/confirmData?id=${this.id}`,

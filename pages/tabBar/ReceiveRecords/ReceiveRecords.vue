@@ -189,7 +189,6 @@ export default {
       uni.getStorageSync('attribute-info')?.attributionId;
     this.searchParams.consumeId = uni.getStorageSync('tenant-info')?.consumeId;
     this.searchParams.uid = uni.getStorageSync('tenant-info')?.uid;
-    console.log(this.searchParams, 888999);
     this.getList({
       current: 1,
       size: this.size,

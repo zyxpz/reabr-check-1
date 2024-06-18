@@ -1,6 +1,10 @@
 <template>
   <view class="card">
-    <view class="title">总重偏差（千克）</view>
+    <view class="title"
+      >总重偏差（千克）<text style="color: red" v-show="!readOnly"
+        >点选确认</text
+      ></view
+    >
     <uni-table ref="table" border emptyText="暂无数据">
       <uni-tr>
         <uni-th width="30px" align="center"> 实称总重</uni-th>
