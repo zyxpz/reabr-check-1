@@ -32,11 +32,12 @@ const fileUtil = {
     // #ifdef APP-PLUS
     const resolveLocalFileSystemURL = (filePath) => {
       return new Promise((resolve, reject) => {
-        plus.io.requestFileSystem(
-          plus.io.PRIVATE_DOC,
-          function (fs) {
+        // 获取应用程序沙盒目录
+        plus.io.resolveLocalFileSystemURL(
+          filePath,
+          function (entry) {
             plus.io.getFileInfo({
-              filePath,
+              filePath: entry.fullPath,
               digestAlgorithm: 'md5',
               success: (res) => {
                 resolve(res.digest);
@@ -48,6 +49,7 @@ const fileUtil = {
             });
           },
           function (e) {
+            console.log('Resolve file path error: ' + e.message);
             resolve('');
           },
         );
