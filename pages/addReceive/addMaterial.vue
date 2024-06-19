@@ -326,30 +326,72 @@ export default {
        */
       /** 实称+实点 */
       let validErr = false;
-      if (this.checkType === 2) {
+      if (this.checkType === 2 && this.rebarType === 1) {
         validErr = this.list?.find(
           (one) =>
             !one.length ||
+            one.length <= 0 ||
             !one.sendAmount ||
+            one.sendAmount <= 0 ||
             !one?.actualAmount ||
-            !one?.sendWeight,
+            one?.actualAmount <= 0 ||
+            !one?.sendWeight ||
+            one?.sendWeight <= 0,
         );
       }
       /** 直螺 */
       if (this.checkType === 1 && this.rebarType === 1) {
         validErr = this.list?.find(
-          (one) => !one.length || !one.sendAmount || !one?.sendWeight,
+          (one) =>
+            !one.length ||
+            one.length <= 0 ||
+            !one.sendAmount ||
+            one.sendAmount <= 0 ||
+            !one?.sendWeight ||
+            one?.sendWeight <= 0,
         );
       }
       /**
        * 盘螺
        */
       if (this.rebarType === 2) {
-        validErr = this.list?.find((one) => !one?.sendWeight);
+        validErr = this.list?.find(
+          (one) => !one?.sendWeight || one?.sendWeight <= 0,
+        );
       }
       if (validErr) {
         uni.showToast({
-          title: '请检查材料送货数据',
+          title: '请检查材料送货数据必填且需大于0！',
+          icon: 'none',
+        });
+        return;
+      }
+      let repeatErr = false;
+      if (this.rebarType === 1) {
+        repeatErr = this.list.find((one, index) => {
+          const id = one?.materialId ?? one?.id;
+          return this.list?.find((dl, i) => {
+            const dlId = dl?.materialId ?? dl?.id;
+            return (
+              dlId + '' + dl?.length === id + '' + one?.length && index !== i
+            );
+          });
+        });
+      }
+      if (this.rebarType === 2) {
+        repeatErr = this.list.find((one, index) => {
+          const id = one?.materialId ?? one?.id;
+          return this.list?.find((dl, i) => {
+            const dlId = dl?.materialId ?? dl?.id;
+            return dlId == id && index !== i;
+          });
+        });
+      }
+      if (repeatErr) {
+        uni.showToast({
+          title: `存在相同规格${
+            this.rebarType === 1 ? '(单根长度)' : ''
+          } 的钢筋，请检查！`,
           icon: 'none',
         });
         return;

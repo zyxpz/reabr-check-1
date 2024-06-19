@@ -2,6 +2,7 @@
     "version" : "1.0",
     "configurations" : [
         {
+            "openVueDevtools" : false,
             "playground" : "standard",
             "type" : "uni-app:app-ios"
         },
@@ -14,6 +15,10 @@
         {
             "playground" : "standard",
             "type" : "uni-app:app-ios_simulator"
+        },
+        {
+            "openVueDevtools" : false,
+            "type" : "uni-app:app-android"
         }
     ]
 }

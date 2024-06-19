@@ -1,11 +1,12 @@
 <template>
   <view>
     <!-- 普通弹窗 -->
-    <uni-popup
+    <uv-popup
       ref="popup"
       background-color="#fff"
       @change="changePopup"
-      type="bottom"
+      mode="bottom"
+      :is-mask-click="false"
     >
       <view class="popup">
         <uni-row class="popup-header">
@@ -13,11 +14,11 @@
             <view class="popup-title">请选择钢筋规格型号</view>
           </uni-col>
           <uni-col :span="1">
-            <uni-icons type="closeempty" @click="closePopup" />
+            <uni-icons type="closeempty" @click="clsoePopup" />
           </uni-col>
         </uni-row>
         <view class="search-container">
-          <uni-easyinput
+          <!-- <uni-easyinput
             v-model="searchValue"
             placeholder="请输入材料名称或规格型号进行搜索"
           >
@@ -28,67 +29,69 @@
                 class="search-icon"
                 @click="handleSearch"
               ></uni-icons></template
-          ></uni-easyinput>
+          ></uni-easyinput> -->
+          <lin-select
+            :list="filterMaterialList"
+            value-key="id"
+            name-key="name"
+            max-height="180"
+            placeholder="请输入钢筋名称或规格进行搜索"
+            @input="handleSearch"
+            @confirm="confirm"
+          />
         </view>
         <view class="popup-content">
           <view class="categroy-content">
-            <virtual-list
-              :allList="showMaterialList"
-              :containerHeight="600"
-              ref="virtualListRef"
-            >
-              <template v-slot:default="{ item }">
-                <uni-row class="item">
-                  <uni-col :span="18">
-                    <view class="name"
-                      >{{ item.materialName }}/{{ item.materialSpec }}</view
+            <view class="item" v-for="(item, index) in showMaterialList">
+              <uni-row>
+                <uni-col :span="18">
+                  <view class="name"
+                    >{{ item.materialName }}/{{ item.materialSpec }}</view
+                  >
+                </uni-col>
+                <uni-col :span="6">
+                  <view class="counter">
+                    <button
+                      :disabled="item.count < 1"
+                      class="btn btn-left"
+                      @click="() => decrease(item)"
                     >
-                  </uni-col>
-                  <uni-col :span="6">
-                    <view class="counter">
-                      <button
-                        :disabled="item.count < 1"
-                        class="btn btn-left"
-                        @click="() => decrease(item)"
-                      >
-                        -
-                      </button>
-                      <input
-                        class="input"
-                        type="number"
-                        :value="item.count"
-                        @input="(e) => updateCount(e, item)"
-                        :min="0"
-                      />
-                      <button
-                        class="btn btn-right"
-                        @click="() => increase(item)"
-                      >
-                        +
-                      </button>
-                      <!-- <uni-number-box :min="0" :value="item.count" /> -->
-                    </view>
-                  </uni-col>
-                </uni-row>
-              </template>
-            </virtual-list>
+                      -
+                    </button>
+                    <input
+                      class="input"
+                      type="number"
+                      :value="item.count"
+                      @input="(e) => updateCount(e, item)"
+                      :min="0"
+                    />
+                    <button class="btn btn-right" @click="() => increase(item)">
+                      +
+                    </button>
+                  </view>
+                </uni-col>
+              </uni-row>
+            </view>
           </view>
         </view>
         <button class="confirm" type="primary" @click="handleConfirm">
           确定
         </button>
       </view>
-    </uni-popup>
+    </uv-popup>
   </view>
 </template>
 <script>
 // import { materialList } from '../../../../common/constants';
 import request from '@/utils/request';
-import VirtualList from '../../../../components/virtualList/virtualList.vue';
+import ZPaging from '../../../../uni_modules/z-paging/components/z-paging/z-paging.vue';
+import LinSelect from '../../../../uni_modules/lin-select/components/lin-select/lin-select.vue';
+
 export default {
   props: ['visible', 'rebarType'],
   components: {
-    VirtualList,
+    ZPaging,
+    LinSelect,
   },
   data() {
     return {
@@ -97,16 +100,15 @@ export default {
        */
       materialList: [],
       searchValue: '',
+      showMaterialList: [],
+      filterMaterialList: [],
     };
   },
   methods: {
     /**
      * 关闭钢筋弹窗
      */
-    closePopup() {
-      this.$refs.popup.close();
-      this.searchValue = '';
-      this.materialList = [];
+    clsoePopup() {
       this.$emit('cancel');
     },
     destroyPopup() {
@@ -129,28 +131,28 @@ export default {
       }
     },
     decrease(item) {
-      this.materialList.forEach((one) => {
+      this.showMaterialList.forEach((one) => {
         if (one.id === item.id) {
           one.count--;
         }
       });
     },
     increase(item) {
-      this.materialList.forEach((one) => {
+      this.showMaterialList.forEach((one) => {
         if (one.id === item.id) {
           one.count++;
         }
       });
     },
     updateCount(e, item) {
-      this.materialList.forEach((one) => {
+      this.showMaterialList.forEach((one) => {
         if (one.id === item.id) {
           one.count = Number(e.detail.value);
         }
       });
     },
     handleConfirm() {
-      this.$emit('confirm', this.materialList);
+      this.$emit('confirm', this.showMaterialList);
     },
     /**
      * 获取钢筋列表数据
@@ -161,21 +163,59 @@ export default {
         type: this.rebarType,
       });
       uni.hideLoading();
-
       this.materialList = res?.data?.map((one) => ({
         ...one,
-        count: 0,
-        show: true,
+        name: one.materialName + '/' + one.materialSpec,
       }));
+      this.filterMaterialList = this.materialList;
     },
-    handleSearch() {
-      this.materialList = this.materialList.map((one) => ({
-        ...one,
-        show:
-          one.materialName?.includes(this.searchValue) ||
-          one?.materialSpec?.includes(this.searchValue),
-      }));
-      this.$refs.virtualListRef?.handleScroll({ detail: { scrollTop: 0 } });
+    handleSearch(v) {
+      console.log(v, 9900);
+      this.searchValue = v;
+      this.filterMaterialList = this.materialList?.filter((one) =>
+        one.name?.includes(v),
+      );
+    },
+    async onQuery() {
+      const res = await request.get(`/api/rebarCheck/rebarMaterialList`, {
+        type: this.rebarType,
+      });
+      if (this?.materialList?.length) {
+        this.materialList = this.materialList?.map((one) => ({
+          ...one,
+          count: one?.count ?? 0,
+          show:
+            one.materialName?.includes(this.searchValue) ||
+            one?.materialSpec?.includes(this.searchValue),
+        }));
+      } else {
+        this.materialList = res?.data?.map((one) => ({
+          ...one,
+          count: one?.count ?? 0,
+          show:
+            one.materialName?.includes(this.searchValue) ||
+            one?.materialSpec?.includes(this.searchValue),
+        }));
+      }
+      this.$refs.paging.setLocalPaging(
+        this.materialList?.filter((one) => one?.show),
+      );
+    },
+    confirm(v) {
+      console.log(v, 'vv');
+      this.searchValue = '';
+      /**
+       * 判断下当前是否有这款钢筋
+       */
+      const isExist = this.showMaterialList?.find((one) => one.id === v);
+      const current = this.materialList?.find((one) => one.id === v);
+      if (!isExist) {
+        this.showMaterialList.unshift({
+          ...current,
+          count: 1,
+        });
+      }
+      console.log(this.showMaterialList, 888);
     },
   },
 
@@ -188,13 +228,16 @@ export default {
         this.$refs.popup.close();
         this.searchValue = '';
         this.materialList = [];
+        this.showMaterialList = [];
+        this.filterMaterialList = [];
       }
     },
   },
   computed: {
-    showMaterialList() {
-      return this.materialList?.filter((one) => one?.show);
-    },
+    //   filterMaterialList() {
+    // console.log(this.materialList, 999)
+    //     return this.materialList?.filter((one) = one?.name?.includes(this.searchValue));
+    //   },
   },
   mounted() {},
 };
@@ -223,7 +266,7 @@ export default {
 }
 
 .popup {
-  height: 70vh;
+  height: 80vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -241,7 +284,7 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   flex: 1;
-  // overflow: auto;
+  overflow: auto;
 }
 
 .popup-title {
@@ -254,7 +297,7 @@ export default {
 }
 
 .item {
-  margin: 24rpx;
+  // margin: 24rpx;
 }
 
 .counter {

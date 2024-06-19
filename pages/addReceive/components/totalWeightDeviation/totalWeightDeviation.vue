@@ -93,9 +93,6 @@ export default {
         );
         await request.get(`/api/rebarCheck/second/${this.id}`);
         this.getDetail();
-        uni.pageScrollTo({
-          selector: '.choose-content',
-        });
       } catch (error) {
         uni.hideLoading();
       }
