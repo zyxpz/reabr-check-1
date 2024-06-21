@@ -391,12 +391,10 @@ export default {
         checkRemark,
         checkResult,
         extNo,
+        goodsPics,
+        sendPics,
       } = res?.data?.checkTruckVO;
       this.formData.truckNo = truckNo;
-
-      const tempUuidTruckPics = res?.data?.checkTruckVO?.truckPic
-        ?.split(',')
-        ?.filter((one) => one);
 
       this.formData = {
         truckNo,
@@ -406,21 +404,42 @@ export default {
         checkRemark,
         checkResult: checkResult + '',
         extNo,
-        truckPic: truckPics?.map((one, index) => ({
-          name: `${tempUuidTruckPics?.[index]}.png`,
+        truckPic: Object.entries(truckPics ?? {})?.map((one, index) => ({
+          name: `${one?.[0]}.png`,
           extname: 'png',
-          url: one,
-          uuid: tempUuidTruckPics?.[index],
+          url: one?.[1],
+          uuid: one?.[0],
           isDetail: true,
         })),
-        truckPicTemp: res?.data?.checkTruckVO?.truckPic
-          ?.split(',')
-          ?.filter((one) => one)
-          ?.map((one, index) => ({
-            uuid: one,
-            isDetail: true,
-            url: res?.data?.checkTruckVO?.truckPics?.[index],
-          })),
+        truckPicTemp: Object.entries(truckPics ?? {})?.map((one, index) => ({
+          uuid: one?.[0],
+          isDetail: true,
+          url: one?.[1],
+        })),
+        goodsPic: Object.entries(goodsPics ?? {})?.map((one, index) => ({
+          name: `${one?.[0]}.png`,
+          extname: 'png',
+          url: one?.[1],
+          uuid: one?.[0],
+          isDetail: true,
+        })),
+        goodsPicTemp: Object.entries(goodsPics ?? {})?.map((one, index) => ({
+          uuid: one?.[0],
+          isDetail: true,
+          url: one?.[1],
+        })),
+        sendPic: Object.entries(sendPics ?? {})?.map((one, index) => ({
+          name: `${one?.[0]}.png`,
+          extname: 'png',
+          url: one?.[1],
+          uuid: one?.[0],
+          isDetail: true,
+        })),
+        sendPicTemp: Object.entries(sendPics ?? {})?.map((one, index) => ({
+          uuid: one?.[0],
+          isDetail: true,
+          url: one?.[1],
+        })),
       };
     },
     async handleSave(isVerify) {
@@ -472,7 +491,7 @@ export default {
       );
 
       /** 过滤出详情中剩余未被删除的数据 */
-      const detailGoodsPic = truckPic?.filter((one) => one.isDetail);
+      const detailGoodsPic = goodsPic?.filter((one) => one.isDetail);
       /** 转换新增的数据 */
       const tempGoodsPicUuid = await this.changePic(
         goodsPic?.filter((one) => !one.isDetail),

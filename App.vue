@@ -40,7 +40,12 @@ export default {
     // #endif
   },
   onShow: function () {
-    console.log('App Show');
+    const phoneSn = uni.getStorageSync('phoneSn');
+    if (!phoneSn) {
+      uni.switchTab({
+        url: '/pages/tabBar/Setting/Setting',
+      });
+    }
   },
   onHide: function () {
     console.log('App Hide');
