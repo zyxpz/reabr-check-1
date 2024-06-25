@@ -2,8 +2,8 @@
     "name" : "rebar-check",
     "appid" : "__UNI__0BD7838",
     "description" : "钢筋验收小助手",
-    "versionName" : "1.0.1",
-    "versionCode" : "100",
+    "versionName" : "1.0.2",
+    "versionCode" : 101,
     "transformPx" : false,
     "app-plus" : {
         "usingComponents" : true,
@@ -19,13 +19,10 @@
         },
         "modules" : {
             "OAuth" : {},
-            "Payment" : {},
-            "Push" : {},
-            "Share" : {},
-            "Speech" : {},
             "VideoPlayer" : {},
             "Camera" : {},
-            "Barcode" : {}
+            "Barcode" : {},
+            "Speech" : {}
         },
         "distribute" : {
             "android" : {
@@ -72,9 +69,6 @@
                 "dSYMs" : false
             },
             "sdkConfigs" : {
-                "speech" : {
-                    "ifly" : {}
-                },
                 "ad" : {}
             },
             "orientation" : [ "portrait-primary" ],
@@ -114,7 +108,22 @@
         "uniStatistics" : {
             "enable" : false
         },
-        "nativePlugins" : {}
+        "nativePlugins" : {
+            "Univalsoft-DeviceId" : {
+                "__plugin_info__" : {
+                    "name" : "iOS 手机唯一标识 keychain 唯一标识 设备id UUID",
+                    "description" : "获取iOS设备唯一id，设备与账号绑定，卸载重装app后唯一标识不变。",
+                    "platforms" : "iOS",
+                    "url" : "https://ext.dcloud.net.cn/plugin?id=11231",
+                    "android_package_name" : "",
+                    "ios_bundle_id" : "uni.UNI0BD7838",
+                    "isCloud" : true,
+                    "bought" : 1,
+                    "pid" : "11231",
+                    "parameters" : {}
+                }
+            }
+        }
     },
     "quickapp" : {},
     "quickapp-native" : {
