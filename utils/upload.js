@@ -49,14 +49,12 @@ const fileUtil = {
             });
           },
           function (e) {
-            console.log('Resolve file path error: ' + e.message);
             resolve('');
           },
         );
       });
     };
     const MD5_APP_PLUS = await resolveLocalFileSystemURL(filePath);
-    console.log(MD5_APP_PLUS, 'MD5_APP_PLUS');
     Object.assign(file, {
       fileMd5: MD5_APP_PLUS,
     });
@@ -77,7 +75,6 @@ const fileUtil = {
     // #endif
     // #ifndef MP-ALIPAY
     const byteData = uni.getFileSystemManager().readFileSync(filePath);
-    console.log.l('byteData', byteData);
     const sMD5 = uni.$u.md5;
     let spark = new sMD5.ArrayBuffer();
     spark.append(byteData);

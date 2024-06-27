@@ -84,10 +84,11 @@
 
 <script>
 import request from '@/utils/request';
-import { mapState, mapMutations, mapActions } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 import { cloneDeep } from 'lodash';
-
+// #ifdef APP-PLUS
 import * as ClientId from '@/uni_modules/sm-did';
+// #endif
 export default {
   data() {
     return {
@@ -117,14 +118,18 @@ export default {
       /** 根据设备码拿用户信息 */
       infosByPhoneSn: [],
       /** 模拟平台数据 */
-      isMock: false,
+      isMock: true,
     };
   },
   computed: {
     ...mapState(['suerInfo']),
   },
   onLoad() {
-    this.register();
+    // #ifdef APP-PLUS
+    if (uni.getSystemInfoSync()?.platform === 'android') {
+      this.register();
+    }
+    // #endif
   },
   methods: {
     ...mapMutations(['setUserInfo', 'setCusToken']),
@@ -313,8 +318,6 @@ export default {
     },
   },
   onShow() {
-    // this.readFile('data.txt');
-    // this.writeFile('data.txt', 'your data');
     this.getSystemInfo();
   },
   watch: {

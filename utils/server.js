@@ -164,34 +164,8 @@ export const uploadToOss = (file) => {
       callbackBodyType: 'application/json',
     }),
   );
-  console.log(
-    `https://${fileConfig?.data?.bucket}.${
-      fileConfig?.data?.endPoint?.split('//')[1]
-    }`,
-    'url',
-  );
-  console.log(fileConfig, 'fileConfig');
+
   return new Promise((resolve) => {
-    console.log({
-      url: `https://${fileConfig?.data?.bucket}.${
-        fileConfig?.data?.endPoint?.split('//')[1]
-      }`, // 开发者服务器的URL。  https://pmbimcloud-test-company.oss-cn-hangzhou.aliyuncs.com
-      filePath: file.filePath,
-      // #ifdef MP-DINGTALK
-      fileName: 'file',
-      // #endif
-      // #ifndef MP-DINGTALK
-      name: 'file',
-      // #endif
-      formData: {
-        key: file.fileKey,
-        policy,
-        OSSAccessKeyId: file.policyInf.accessKeyId,
-        signature,
-        callback,
-        'x-oss-security-token': file.policyInf.securityToken, // 使用STS签名时必传。
-      },
-    });
     try {
       uni.uploadFile({
         url: `https://${fileConfig?.data?.bucket}.${
@@ -213,7 +187,6 @@ export const uploadToOss = (file) => {
           'x-oss-security-token': file.policyInf.securityToken, // 使用STS签名时必传。
         },
         success: (res) => {
-          console.log(res, 'res');
           resolve(file);
         },
         fail: (err) => {

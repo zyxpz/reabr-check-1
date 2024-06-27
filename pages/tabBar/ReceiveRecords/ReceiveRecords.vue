@@ -151,8 +151,8 @@ export default {
       status: 'nomore',
       contentText: {
         contentdown: '上拉加载更多',
-        contentrefresh: '加载中',
-        contentnomore: '没有更多',
+        contentrefresh: '加载中...',
+        contentnomore: '没有更多了~',
       },
     };
   },

@@ -104,11 +104,6 @@ export default {
       loading: false,
     };
   },
-  watch: {
-    detail(newValue) {
-      console.log(newValue, 77);
-    },
-  },
   computed: {
     finallyWeightResult() {
       return this?.detail?.checkReverseVO?.theoryCheckVO?.every(

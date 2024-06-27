@@ -376,6 +376,31 @@ export default {
       if (plate.length >= 7) this.formData.truckNo = plate;
       this.plateShow = false;
     },
+    /**
+     * 获取图片数据最终提交时候处理数据
+     */
+    getPicTemp(obj) {
+      return Object.entries(obj ?? {})?.map((one) => ({
+        uuid: one?.[0],
+        /**
+         * isDetail  true 表示详情中的数据
+         */
+        isDetail: true,
+        url: one?.[1],
+      }));
+    },
+    /**
+     * 获取图片数据用于详情返回数据展示
+     */
+    getPic(obj) {
+      return Object.entries(obj ?? {})?.map((one) => ({
+        name: `${one?.[0]}.png`,
+        extname: 'png',
+        url: one?.[1],
+        uuid: one?.[0],
+        isDetail: true,
+      }));
+    },
     async getDetail() {
       uni.showLoading();
       const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
@@ -404,43 +429,18 @@ export default {
         checkRemark,
         checkResult: checkResult + '',
         extNo,
-        truckPic: Object.entries(truckPics ?? {})?.map((one, index) => ({
-          name: `${one?.[0]}.png`,
-          extname: 'png',
-          url: one?.[1],
-          uuid: one?.[0],
-          isDetail: true,
-        })),
-        truckPicTemp: Object.entries(truckPics ?? {})?.map((one, index) => ({
-          uuid: one?.[0],
-          isDetail: true,
-          url: one?.[1],
-        })),
-        goodsPic: Object.entries(goodsPics ?? {})?.map((one, index) => ({
-          name: `${one?.[0]}.png`,
-          extname: 'png',
-          url: one?.[1],
-          uuid: one?.[0],
-          isDetail: true,
-        })),
-        goodsPicTemp: Object.entries(goodsPics ?? {})?.map((one, index) => ({
-          uuid: one?.[0],
-          isDetail: true,
-          url: one?.[1],
-        })),
-        sendPic: Object.entries(sendPics ?? {})?.map((one, index) => ({
-          name: `${one?.[0]}.png`,
-          extname: 'png',
-          url: one?.[1],
-          uuid: one?.[0],
-          isDetail: true,
-        })),
-        sendPicTemp: Object.entries(sendPics ?? {})?.map((one, index) => ({
-          uuid: one?.[0],
-          isDetail: true,
-          url: one?.[1],
-        })),
+        truckPic: this.getPic(truckPics),
+        truckPicTemp: this.getPicTemp(truckPics),
+        goodsPic: this.getPic(goodsPics),
+        goodsPicTemp: this.getPicTemp(goodsPics),
+        sendPic: this.getPic(sendPics),
+        sendPicTemp: this.getPicTemp(sendPics),
       };
+    },
+    loadingFalse() {
+      uni.hideLoading();
+      this.loading = false;
+      this.saveLoading = false;
     },
     async handleSave(isVerify) {
       const {
@@ -459,92 +459,70 @@ export default {
         });
         return;
       }
-
-      /** 货/铭牌照片 */
-      /** 所有现在看到的图片数组， 详情的按照 uuid 区分， 非详情的按照 url获取 */
-      const truckPic = truckPicTemp.filter((one) =>
-        this.formData.truckPic?.find((dt) =>
-          one.isDetail
-            ? one.uuid === dt?.name?.split('.')?.[0]
-            : dt.url === one.url,
-        ),
-      );
-      /** 过滤出详情中剩余未被删除的数据 */
-      const detailTruckPic = truckPic?.filter((one) => one.isDetail);
-
-      /** 转换新增的数据 */
-      const tempTruckPicUuid = await this.changePic(
-        truckPic?.filter((one) => !one.isDetail),
-      );
-      /** 最终图片数据是由详情中未被删除的+新增的 */
-      const finallyTruckPicUuid = detailTruckPic
-        ?.map((one) => one.uuid)
-        ?.concat(tempTruckPicUuid);
-
-      /** 货/铭牌照片 */
-      const goodsPic = goodsPicTemp?.filter((one) =>
-        this.formData.goodsPic?.find((dt) =>
-          one.isDetail
-            ? one.uuid === dt?.name?.split('.')?.[0]
-            : dt.url === one.url,
-        ),
-      );
-
-      /** 过滤出详情中剩余未被删除的数据 */
-      const detailGoodsPic = goodsPic?.filter((one) => one.isDetail);
-      /** 转换新增的数据 */
-      const tempGoodsPicUuid = await this.changePic(
-        goodsPic?.filter((one) => !one.isDetail),
-      );
-      /** 最终图片数据是由详情中未被删除的+新增的 */
-      const finallyGoodsPicUuid = detailGoodsPic
-        ?.map((one) => one.uuid)
-        ?.concat(tempGoodsPicUuid);
-      /** 送货单照片 */
-      const sendPic = sendPicTemp?.filter((one) =>
-        this.formData.sendPic?.find((dt) =>
-          one.isDetail
-            ? one.uuid === dt?.name?.split('.')?.[0]
-            : dt.url === one.url,
-        ),
-      );
-      /** 过滤出详情中剩余未被删除的数据 */
-      const detailSendPic = sendPic?.filter((one) => one.isDetail) ?? [];
-      const tempSendPicUuid = await this.changePic(
-        sendPic?.filter((one) => !one.isDetail),
-      );
-      /** 最终图片数据是由详情中未被删除的+新增的 */
-      const finallySendPicUuid = detailSendPic
-        ?.map((one) => one.uuid)
-        ?.concat(tempSendPicUuid);
-      // if (!truckPic?.length) {
-      //   uni.showToast({
-      //     title: '请添加车辆称重照片！',
-      //     icon: 'none',
-      //   });
-      //   return;
-      // }
-      // if (!goodsPic?.length) {
-      //   uni.showToast({
-      //     title: '请添加货/铭牌照片！',
-      //     icon: 'none',
-      //   });
-      //   return;
-      // }
-      // if (!sendPic?.length) {
-      //   uni.showToast({
-      //     title: '请添加送货单照片！',
-      //     icon: 'none',
-      //   });
-      //   return;
-      // }
-      uni.showLoading();
       if (isVerify === 1) {
         this.loading = true;
       } else {
         this.saveLoading = true;
       }
       try {
+        /** 货/铭牌照片 */
+        /** 所有现在看到的图片数组， 详情的按照 uuid 区分， 非详情的按照 url获取 */
+        const truckPic = truckPicTemp.filter((one) =>
+          this.formData.truckPic?.find((dt) =>
+            one.isDetail
+              ? one.uuid === dt?.name?.split('.')?.[0]
+              : dt.url === one.url,
+          ),
+        );
+        /** 过滤出详情中剩余未被删除的数据 */
+        const detailTruckPic = truckPic?.filter((one) => one.isDetail);
+
+        /** 转换新增的数据 */
+        const tempTruckPicUuid = await this.changePic(
+          truckPic?.filter((one) => !one.isDetail),
+        );
+        /** 最终图片数据是由详情中未被删除的+新增的 */
+        const finallyTruckPicUuid = detailTruckPic
+          ?.map((one) => one.uuid)
+          ?.concat(tempTruckPicUuid);
+
+        /** 货/铭牌照片 */
+        const goodsPic = goodsPicTemp?.filter((one) =>
+          this.formData.goodsPic?.find((dt) =>
+            one.isDetail
+              ? one.uuid === dt?.name?.split('.')?.[0]
+              : dt.url === one.url,
+          ),
+        );
+
+        /** 过滤出详情中剩余未被删除的数据 */
+        const detailGoodsPic = goodsPic?.filter((one) => one.isDetail);
+        /** 转换新增的数据 */
+        const tempGoodsPicUuid = await this.changePic(
+          goodsPic?.filter((one) => !one.isDetail),
+        );
+        /** 最终图片数据是由详情中未被删除的+新增的 */
+        const finallyGoodsPicUuid = detailGoodsPic
+          ?.map((one) => one.uuid)
+          ?.concat(tempGoodsPicUuid);
+        /** 送货单照片 */
+        const sendPic = sendPicTemp?.filter((one) =>
+          this.formData.sendPic?.find((dt) =>
+            one.isDetail
+              ? one.uuid === dt?.name?.split('.')?.[0]
+              : dt.url === one.url,
+          ),
+        );
+        /** 过滤出详情中剩余未被删除的数据 */
+        const detailSendPic = sendPic?.filter((one) => one.isDetail) ?? [];
+        const tempSendPicUuid = await this.changePic(
+          sendPic?.filter((one) => !one.isDetail),
+        );
+        /** 最终图片数据是由详情中未被删除的+新增的 */
+        const finallySendPicUuid = detailSendPic
+          ?.map((one) => one.uuid)
+          ?.concat(tempSendPicUuid);
+        uni.showLoading();
         const res = await request.post('/api/rebarCheck/truckOrPicUpdate', {
           ...rest,
           truckPic: finallyTruckPicUuid?.join(),
@@ -555,8 +533,7 @@ export default {
           truckNo,
           truckTime,
         });
-        uni.hideLoading();
-        this.loading = false;
+        this.loadingFalse();
         if (res.success) {
           uni.showToast({
             title: isVerify === 1 ? '暂存成功' : '保存并归档成功',
@@ -573,9 +550,7 @@ export default {
         }
         uni.hideLoading();
       } catch (error) {
-        uni.hideLoading();
-        this.loading = false;
-        this.saveLoading = false;
+        this.loadingFalse();
       }
     },
   },

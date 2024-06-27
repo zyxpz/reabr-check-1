@@ -44,7 +44,6 @@ export default {
   },
   data() {
     return {
-      loading: false,
       /** 验收单据详情 */
       detail: {},
     };
@@ -63,13 +62,6 @@ export default {
           });
           return;
         }
-        // uni.showLoading();
-        // await request.get(
-        //   `/api/rebarCheck/reverseWeightType/${this.id}/${reverseWeightType}`,
-        // );
-        // await request.get(`/api/rebarCheck/second/${this.id}`);
-        // uni.showLoading();
-        // this.getDetail();
       } else {
         uni.redirectTo({
           url: `/pages/addReceive/confirmData?id=${this.id}`,
@@ -100,7 +92,6 @@ export default {
       const res = await request.get(`/api/rebarCheck/checkDetail/${this.id}`);
       uni.hideLoading();
       this.detail = res?.data;
-      console.log(this.detail, 'this.detail');
     },
   },
   onLoad(options) {
@@ -111,7 +102,7 @@ export default {
     this.getDetail();
   },
   watch: {
-    id(newValue) {
+    id() {
       this.getDetail();
     },
   },

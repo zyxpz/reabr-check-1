@@ -245,12 +245,6 @@ export default {
       this.list = this.list?.filter((one) => one.cusId !== cusId);
     },
     /**
-     * 选择总单位
-     */
-    changeUnit(e) {
-      console.log(e, 999);
-    },
-    /**
      * 点击长度 tag
      */
     handleLengthTag(text, cusId) {
@@ -288,7 +282,6 @@ export default {
     handleScan() {
       const params = {
         attributionCode: uni.getStorageSync('attribute-info')?.code,
-        // assembleUrl: 'http://weighmaster.pinming.cn/material-client-management/api/receiptRecycle/assemble',
         assembleUrl:
           'https://zz-test05.pinming.org/material-client-management/api/common/check/assemble',
         warning4Url: getWarning4Url(),
@@ -459,7 +452,6 @@ export default {
       const res = await request.get(`/api/rebarCheck/checkDetail/${newValue}`);
       uni.hideLoading();
       this.detail = res?.data;
-      console.log(this.detail, 'this.detail');
     },
     async inputEnableFun() {
       const res = await request.get(
@@ -468,19 +460,24 @@ export default {
         }`,
       );
       this.inputEnable = res?.data?.isInputEnable === 1 ? true : false;
-      console.log(res, 'res');
     },
   },
   watch: {
+    /**
+     * 监听扫码识别返回数据
+     * @param newValue
+     */
     scanData(newValue) {
+      /** 扫码识别将是否手动输入改成 2 不是手动 */
       this.isInput = 2;
+      /** 毛重 - 皮重 */
       const { GrossWeighValue, ValueUnit, TareWeighValue } = newValue ?? {};
       const diff = GrossWeighValue - TareWeighValue;
+      /** 单位转换： 如果是单位是千克不需要转换，如果是吨需要 diff * 1000 转换为千克重量 */
       this.actualWeight =
         Math.floor(
           (ValueUnit === '千克' ? diff : diff * 1000)?.toFixed(2) * 100,
         ) / 100;
-      console.log(newValue, 'newValue');
     },
     id(newValue) {
       this.getDetail(newValue);
