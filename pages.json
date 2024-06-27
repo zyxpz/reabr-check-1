@@ -76,8 +76,8 @@
     {
       "path": "pages/tabBar/ReceiveRecords/ReceiveRecords",
       "style": {
-        "navigationBarTitleText": "收料记录"
-        // "enablePullDownRefresh": true
+        "navigationBarTitleText": "收料记录",
+        "enablePullDownRefresh": true
       }
     },
     {
