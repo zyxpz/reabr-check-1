@@ -11,30 +11,6 @@
         ref="DaDropdownRef"
         @confirm="handleConfirm"
       >
-        <!-- <template #slot1="{ item, index }">
-        <uni-search-bar
-          style="margin: 16rpx 0"
-          radius="4"
-          placeholder="请输入收料编号"
-          clearButton="auto"
-          cancelButton="none"
-          ref="searchOrderRef"
-          v-model="searchOrder"
-          @change="(v) => (searchOrder = v)"
-        />
-        <uni-row class="g-flex-aic-jcsb">
-          <uni-col :span="11"
-            ><button type="default" @click="handleCancel">重置</button></uni-col
-          >
-          <uni-col :span="11"
-            ><button type="primary" @click="handleSearchOrderConfirm">
-              确定
-            </button></uni-col
-          >
-        </uni-row>
-        <u-cus-gap size="36" />
-        <view> </view>
-      </template> -->
       </DaDropdown>
       <view class="list-container">
         <view class="uni-list">
@@ -189,8 +165,9 @@ export default {
       uni.getStorageSync('attribute-info')?.attributionId;
     this.searchParams.consumeId = uni.getStorageSync('tenant-info')?.consumeId;
     this.searchParams.uid = uni.getStorageSync('tenant-info')?.uid;
+    this.current = 1;
     this.getList({
-      current: 1,
+      current: this.current,
       size: this.size,
       ...this.searchParams,
     });
@@ -198,8 +175,9 @@ export default {
   onPullDownRefresh() {
     this.reload = true;
     this.last_id = '';
+    this.current = 1;
     this.getList({
-      current: 1,
+      current: this.current,
       size: this.size,
       ...this.searchParams,
     });
@@ -224,26 +202,20 @@ export default {
       }
       request.post('/api/rebarCheck/checkList', params).then((res) => {
         if (res?.success) {
+          uni.stopPullDownRefresh();
           this.current++;
           const list = res?.data?.records;
           this.listData = this.reload ? list : this.listData?.concat(list);
           this.last_id = list[list.length - 1]?.id;
           this.reload = false;
           this.total = res?.data?.total;
-          if (this.total < this.size) {
+          if (this.total <= this.size * params.current) {
             this.status = 'noMore';
           }
         }
       });
     },
-    aderror(e) {
-      console.log('aderror: ' + JSON.stringify(e.detail));
-    },
-    changeSearchOrder(v) {
-      this.searchParams.god3 = v;
-    },
     handleConfirm(value, data) {
-      console.log(value, data, 888);
       this.searchParams = {
         ...this.searchParams,
         ...value,
@@ -286,13 +258,6 @@ export default {
           },
         });
       }
-    },
-    /**
-     * 获取详情
-     */
-    async getDetail() {
-      this.detail = res?.data;
-      console.log(this.detail, 'this.detail');
     },
     /**
      * 跳转到详情
