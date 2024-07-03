@@ -118,7 +118,7 @@ export default {
       /** 根据设备码拿用户信息 */
       infosByPhoneSn: [],
       /** 模拟平台数据 */
-      isMock: true,
+      isMock: false,
     };
   },
   computed: {

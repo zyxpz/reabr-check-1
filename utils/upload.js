@@ -31,28 +31,52 @@ const fileUtil = {
 
     // #ifdef APP-PLUS
     const resolveLocalFileSystemURL = (filePath) => {
-      return new Promise((resolve, reject) => {
-        // 获取应用程序沙盒目录
-        plus.io.resolveLocalFileSystemURL(
-          filePath,
-          function (entry) {
-            plus.io.getFileInfo({
-              filePath: entry.fullPath,
-              digestAlgorithm: 'md5',
-              success: (res) => {
-                resolve(res.digest);
-              },
-              fail: (err) => {
-                console.log(err, 'err');
-                resolve('');
-              },
-            });
-          },
-          function (e) {
-            resolve('');
-          },
-        );
-      });
+      if (uni.getSystemInfoSync()?.platform === 'android') {
+        return new Promise((resolve, reject) => {
+          // 获取应用程序沙盒目录
+          plus.io.resolveLocalFileSystemURL(
+            filePath,
+            function (entry) {
+              plus.io.getFileInfo({
+                filePath: entry.fullPath,
+                digestAlgorithm: 'md5',
+                success: (res) => {
+                  resolve(res.digest);
+                },
+                fail: (err) => {
+                  console.log(err, 'err');
+                  resolve('');
+                },
+              });
+            },
+            function (e) {
+              resolve('');
+            },
+          );
+        });
+      }
+      if (uni.getSystemInfoSync().platform === 'ios') {
+        return new Promise((resolve, reject) => {
+          plus.io.requestFileSystem(
+            plus.io.PRIVATE_DOC,
+            function (fs) {
+              plus.io.getFileInfo({
+                filePath,
+                digestAlgorithm: 'md5',
+                success: (res) => {
+                  resolve(res.digest);
+                },
+                fail: (err) => {
+                  resolve('');
+                },
+              });
+            },
+            function (e) {
+              resolve('');
+            },
+          );
+        });
+      }
     };
     const MD5_APP_PLUS = await resolveLocalFileSystemURL(filePath);
     Object.assign(file, {

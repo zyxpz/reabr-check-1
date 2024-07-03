@@ -23,7 +23,7 @@ const request = (url, method, data, header = {}) => {
       : { Authentication: uni.getStorageSync('cus-token') };
   return new Promise((resolve, reject) => {
     uni.request({
-      url: getBaseUrl('dev') + url,
+      url: getBaseUrl('test') + url,
       method: method,
       data: data,
       header: {

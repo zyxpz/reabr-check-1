@@ -86,6 +86,12 @@ export default {
   methods: {
     async handleChangeWeighType(e) {
       this.reverseWeightType = e?.detail?.value;
+      this.$nextTick(() => {
+        uni.pageScrollTo({
+          scrollTop: '.choose-content',
+          duration: 0,
+        });
+      });
       uni.showLoading();
       try {
         await request.get(

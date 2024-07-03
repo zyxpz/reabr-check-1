@@ -88,25 +88,31 @@ export default {
   props: ['detail'],
   computed: {
     turckPics() {
-      return this.detail?.checkTruckVO?.truckPics?.map((one, index) => ({
-        name: `${index}.png`,
-        extname: 'png',
-        url: one,
-      }));
+      return Object.values(this.detail?.checkTruckVO?.truckPics)?.map(
+        (one, index) => ({
+          name: `${index}.png`,
+          extname: 'png',
+          url: one,
+        }),
+      );
     },
     goodsPics() {
-      return this.detail?.checkTruckVO?.goodsPics?.map((one, index) => ({
-        name: `${index}.png`,
-        extname: 'png',
-        url: one,
-      }));
+      return Object.values(this.detail?.checkTruckVO?.goodsPics)?.map(
+        (one, index) => ({
+          name: `${index}.png`,
+          extname: 'png',
+          url: one,
+        }),
+      );
     },
     sendPics() {
-      return this.detail?.checkTruckVO?.sendPics?.map((one, index) => ({
-        name: `${index}.png`,
-        extname: 'png',
-        url: one,
-      }));
+      return Object.values(this.detail?.checkTruckVO?.sendPics)?.map(
+        (one, index) => ({
+          name: `${index}.png`,
+          extname: 'png',
+          url: one,
+        }),
+      );
     },
   },
 };

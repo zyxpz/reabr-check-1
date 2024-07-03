@@ -14,7 +14,9 @@
         <reverse-check :detail="detail" />
       </view>
     </view>
-    <uni-row class="btn-content">
+  </view>
+  <view class="btn-content">
+    <uni-row class="btn-row">
       <uni-col :span="9"
         ><button type="primary" @click="handleChangeOriginData">
           修改运单数据
@@ -120,16 +122,23 @@ export default {
 <style lang="scss">
 .add-material-page {
   padding: 16rpx 12rpx;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: calc(100vh - 32rpx);
+  // display: flex;
+  // flex-direction: column;
+  // justify-content: space-between;
+  // height: calc(100vh - 32rpx);
+  height: auto !important;
+  margin-bottom: 46px;
 }
 .content {
   flex: 1;
   overflow: auto;
 }
 .btn-content {
+  position: fixed;
+  bottom: 10px;
+  width: 100%;
+}
+.btn-row {
   display: flex;
   justify-content: space-between;
 }
